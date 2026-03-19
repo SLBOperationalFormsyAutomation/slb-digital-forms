@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLB Visitor Registration</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h1>SLB Visitor Registration</h1>
+
+<label>Full Name *</label>
+<input type="text" id="name" required>
+
+<label>Identification Number *</label>
+<input type="text" id="idnumber" required>
+
+<label>ID Type</label>
+<select id="idtype">
+<option>C.C</option>
+<option>C.E</option>
+<option>GIN</option>
+</select>
+
+<label>Phone Number *</label>
+<input type="text" id="phone" required>
+
+<label>Company *</label>
+<input type="text" id="company" required>
+
+<label>Alcocheck Result</label>
+<select id="alcocheck">
+<option>Negative</option>
+<option>Positive</option>
+<option>Not Applicable</option>
+</select>
+
+<label>Signature (Draw on screen) *</label>
+
+<canvas id="signature-pad" width="400" height="150"></canvas>
+
+<div class="signature-buttons">
+<button type="button" onclick="clearSignature()">Clear Signature</button>
+</div>
+
+<button class="submit-btn" onclick="submitForm()">Submit Registration</button>
+
+<p class="notice">
+By submitting this form you authorize the processing of personal data in accordance with Law 1581 of 2012 and SLB data protection policies.
+</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
