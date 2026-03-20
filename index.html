@@ -9,15 +9,18 @@
       --slb-light-blue: #e6f0ff;
     }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: var(--slb-light-blue);
-      color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('Fondo.png'); /* tu imagen */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
     form {
       background-color: #fff;
@@ -136,10 +139,9 @@
       const rect = canvas.getBoundingClientRect();
       ctx.lineWidth = 2;
       ctx.lineCap = "round";
-      ctx.strokeStyle = "#002855";
+      ctx.strokeStyle = "#001f3d";
       ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
       ctx.stroke();
-      ctx.beginPath();
       ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
     }
 
@@ -185,3 +187,4 @@
   </script>
 </body>
 </html>
+
