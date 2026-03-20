@@ -147,112 +147,134 @@ De conformidad con lo dispuesto en la Ley 1581 de 2012 y demas normas vigentes s
 </form>
 
 <script>
+const form = document.getElementById("formRegistro");
 const canvas = document.getElementById("firma");
 const ctx = canvas.getContext("2d");
 
 let dibujando = false;
-let lastX = 0;
-let lastY = 0;
 
-// Soporte mouse + celular
-const getPos = (e) => {
+// Ajustar resolución real del canvas (IMPORTANTE para móviles)
+function ajustarCanvas() {
   const rect = canvas.getBoundingClientRect();
-  if (e.touches) {
-    return {
-      x: e.touches[0].clientX - rect.left,
-      y: e.touches[0].clientY - rect.top
-    };
-  }
-  return {
-    x: e.clientX - rect.left,
-    y: e.clientY - rect.top
-  };
-};
+  canvas.width = rect.width;
+  canvas.height = rect.height;
+}
+window.addEventListener("load", ajustarCanvas);
+window.addEventListener("resize", ajustarCanvas);
 
-const iniciar = (e) => {
+// 🔹 FUNCIONES GENERALES
+function iniciarDibujo(x, y) {
   dibujando = true;
-  const pos = getPos(e);
-  lastX = pos.x;
-  lastY = pos.y;
-};
-
-const dibujar = (e) => {
-  if (!dibujando) return;
-  e.preventDefault();
-
-  const pos = getPos(e);
-
   ctx.beginPath();
-  ctx.moveTo(lastX, lastY);
-  ctx.lineTo(pos.x, pos.y);
-  ctx.strokeStyle = "#001f3d";
+  ctx.moveTo(x, y);
+}
+
+function dibujarLinea(x, y) {
+  if (!dibujando) return;
   ctx.lineWidth = 2;
   ctx.lineCap = "round";
+  ctx.strokeStyle = "#002855";
+  ctx.lineTo(x, y);
   ctx.stroke();
+}
 
-  lastX = pos.x;
-  lastY = pos.y;
-};
+function terminarDibujo() {
+  dibujando = false;
+}
 
-const detener = () => dibujando = false;
+// 🔹 MOUSE
+canvas.addEventListener("mousedown", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  iniciarDibujo(e.clientX - rect.left, e.clientY - rect.top);
+});
 
-// Eventos
-canvas.addEventListener("mousedown", iniciar);
-canvas.addEventListener("mousemove", dibujar);
-canvas.addEventListener("mouseup", detener);
-canvas.addEventListener("mouseout", detener);
+canvas.addEventListener("mousemove", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  dibujarLinea(e.clientX - rect.left, e.clientY - rect.top);
+});
 
-canvas.addEventListener("touchstart", iniciar);
-canvas.addEventListener("touchmove", dibujar);
-canvas.addEventListener("touchend", detener);
+canvas.addEventListener("mouseup", terminarDibujo);
+canvas.addEventListener("mouseout", terminarDibujo);
 
-// Limpiar firma SOLO manual
-document.getElementById("limpiar").onclick = () => {
+// 🔹 TOUCH (CELULARES)
+canvas.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  iniciarDibujo(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+
+canvas.addEventListener("touchmove", (e) => {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const touch = e.touches[0];
+  dibujarLinea(touch.clientX - rect.left, touch.clientY - rect.top);
+});
+
+canvas.addEventListener("touchend", terminarDibujo);
+
+// 🔹 BORRAR FIRMA
+document.getElementById("borrarFirma").addEventListener("click", () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-};
+  ctx.beginPath();
+});
 
-// Envío
-document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+// 🔹 VALIDAR SI FIRMA ESTÁ VACÍA
+function firmaVacia() {
+  const blank = document.createElement("canvas");
+  blank.width = canvas.width;
+  blank.height = canvas.height;
+  return canvas.toDataURL() === blank.toDataURL();
+}
+
+// 🔹 SUBMIT
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  if (firmaVacia()) {
+    alert("Debe ingresar una firma");
+    return;
+  }
+
+  const dataURL = canvas.toDataURL();
+
   const data = {
-    nombre: nombre.value,
-    tipoDocumento: tipoDocumento.value,
-    documento: documento.value,
-    contacto: contacto.value,
-    empresa: empresa.value,
-    alcocheck: alcocheck.value,
-    arl: arl.value,
-    eps: eps.value,
-    rh: rh.value,
-    alergias: alergias.value,
-    emergencia: emergencia.value,
-    visita: visita.value,
-    serial: serial.value,
-    laptopIngreso: laptopIngreso.value,
-    laptopSalida: laptopSalida.value,
-    firma: canvas.toDataURL(),
-    aceptaDatos: aceptaDatos.checked
+    nombre: document.getElementById("nombre").value,
+    tipoDocumento: document.getElementById("tipoDocumento").value,
+    documento: document.getElementById("documento").value,
+    contacto: document.getElementById("contacto").value,
+    empresa: document.getElementById("empresa").value,
+    alcocheck: document.getElementById("alcocheck").value,
+    arl: document.getElementById("arl").value,
+    eps: document.getElementById("eps").value,
+    rh: document.getElementById("rh").value,
+    alergias: document.getElementById("alergias").value,
+    emergencia: document.getElementById("emergencia").value,
+    visita: document.getElementById("visita").value,
+    serial: document.getElementById("serial").value,
+    laptopIngreso: document.getElementById("laptopIngreso").value,
+    laptopSalida: document.getElementById("laptopSalida").value,
+    aceptaDatos: document.getElementById("aceptaDatos").checked,
+    firma: dataURL
   };
 
-  const res = await fetch("http://127.0.0.1:5000/registro", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-  });
-
-  if(res.ok){
-    alert("Guardado ✅");
-
-    // LIMPIAR SOLO CAMPOS (NO FIRMA)
-    document.querySelectorAll("input").forEach(i => {
-      if(i.type !== "checkbox") i.value = "";
+  try {
+    const response = await fetch("http://127.0.0.1:5000/registro", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
     });
-    document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
-    aceptaDatos.checked = false;
 
-  } else {
-    alert("Error");
+    if (response.ok) {
+      alert("Registro guardado correctamente ✅");
+      form.reset();
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+      const resData = await response.json();
+      alert("Error: " + resData.error);
+    }
+  } catch (err) {
+    alert("Error de conexión con el servidor.");
   }
 });
 </script>
