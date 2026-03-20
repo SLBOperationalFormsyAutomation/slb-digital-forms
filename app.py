@@ -29,7 +29,16 @@ def guardar_registro(data):
         data["contacto"],                     # Número de contacto
         data["empresa"],                      # Empresa
         data["alcocheck"],                    # Resultado Alcocheck
-        "Firmado"                             # Firma
+        data["arl"],
+        data["eps"],
+        data["rh"],
+        data["alergias"],
+        data["emergencia"],
+        data["visita"],
+        data["serial"],
+        data["laptopIngreso"],
+        data["laptopSalida"],
+        data["firma"]                             # Firma
     ]
 
     ws.append(fila)

@@ -1,214 +1,263 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro Visitantes SLB</title>
-  <style>
-    :root {
-      --slb-blue-dark: #001f3d; /* Azul corporativo oscuro */
-      --slb-light-blue: #e6f0ff;
-    }
+<meta charset="UTF-8">
+<title>Registro Visitantes SLB</title>
 
-    body {
-      font-family: Arial, sans-serif;
-      background-image: url('Fondo.png');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-    }
+<style>
+:root {
+  --slb-blue-dark: #001f3d;
+}
 
-    form {
-      background-color: rgba(255, 255, 255, 0.95); /* Fondo semitransparente para legibilidad */
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      width: 90%;
-      max-width: 500px;
-      color: #000; /* Texto visible */
-    }
+body {
+  font-family: Arial, sans-serif;
+  background-image: url('Fondo.png');
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
 
-    h2 {
-      text-align: center;
-      color: var(--slb-blue-dark);
-      margin-bottom: 20px;
-    }
+form {
+  background-color: rgba(255,255,255,0.95);
+  padding: 25px;
+  border-radius: 12px;
+  width: 95%;
+  max-width: 520px;
+  color: #000;
+}
 
-    label {
-      display: block;
-      margin-bottom: 12px;
-      font-weight: bold;
-    }
+h2 {
+  text-align: center;
+  color: var(--slb-blue-dark);
+}
 
-    input[type="text"], select {
-      width: 100%;
-      padding: 8px;
-      margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
 
-    canvas {
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-      height: 100px;
-      margin-top: 6px;
-      cursor: crosshair;
-      background-color: #fff;
-    }
+input, select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
 
-    input[type="checkbox"] {
-      margin-right: 8px;
-    }
+canvas {
+  border: 1px solid #ccc;
+  background: #fff;
+  width: 100%;
+  height: 100px;
+  border-radius: 6px;
+}
 
-    button {
-      background-color: var(--slb-blue-dark);
-      color: white;
-      border: none;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 15px;
-    }
+button {
+  background-color: var(--slb-blue-dark);
+  color: white;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 8px;
+}
 
-    button:hover {
-      background-color: #000f2d;
-    }
+.small {
+  font-size: 0.8em;
+  font-weight: normal;
+}
+</style>
 
-    label[style] {
-      font-weight: normal;
-      font-size: 0.85em;
-    }
-
-    @media (max-width: 600px) {
-      form {
-        padding: 20px;
-      }
-      canvas {
-        height: 80px;
-      }
-    }
-  </style>
 </head>
 <body>
-  <form id="formRegistro">
-    <h2>Registro de Visitantes</h2>
 
-    <label>Nombre completo:<input type="text" id="nombre" required></label>
+<form id="formRegistro">
+<h2>Registro de Visitantes</h2>
 
-    <label>Tipo de documento:
-      <select id="tipoDocumento" required>
-        <option value="C.C">C.C</option>
-        <option value="C.E">C.E</option>
-        <option value="GIN">GIN</option>
-      </select>
-    </label>
+<label>Nombre completo</label>
+<input id="nombre" required>
 
-    <label>Documento:<input type="text" id="documento" required></label>
-    <label>Número de contacto:<input type="text" id="contacto" required></label>
-    <label>Empresa:<input type="text" id="empresa" required></label>
+<label>Tipo documento</label>
+<select id="tipoDocumento">
+  <option>C.C</option>
+  <option>C.E</option>
+  <option>GIN</option>
+</select>
 
-    <label>Alcocheck:
-      <select id="alcocheck" required>
-        <option value="Negativo">Negativo</option>
-        <option value="Positivo">Positivo</option>
-      </select>
-    </label>
+<label>Documento</label>
+<input id="documento" required>
 
-    <label>Firma digital:
-      <canvas id="firma"></canvas>
-      <button type="button" id="borrarFirma" style="margin-top:5px;">Limpiar Firma</button>
-    </label>
+<label>Contacto</label>
+<input id="contacto" required>
 
-    <label style="display:block; margin-top:10px;">
-      <input type="checkbox" id="aceptaDatos" required>
-      De conformidad con lo dispuesto en la Ley 1581 de 2012 y demás normas vigentes sobre protección de datos personales, autorizo libre, expresa e inequívocamente a Compagnie D'Operations Petrolieres Schlumberger (COPS) o SLB, para que realice la recolección y tratamiento de mis datos personales que aquí suministro de manera veraz y completa, los cuales serán utilizados para fines de seguridad. Así mismo, declaro que conozco que la recolección y tratamiento de mis datos personales se realizará de conformidad con lo indicado en la Política de Tratamiento de Datos Personales que podrá ser encontrada en el siguiente código QR y que en el caso de ejercicio de queja, rectificación, actualización, consulta, o solicitud de acceso o sustracción de datos, remitiré la solicitud al correo electrónico: leyprotecciondatos@slb.com.
-    </label>
+<label>Empresa</label>
+<input id="empresa" required>
 
-    <button type="submit">Registrar</button>
-  </form>
+<label>Alcocheck</label>
+<select id="alcocheck">
+  <option>Negativo</option>
+  <option>Positivo</option>
+</select>
 
-  <script>
-    const form = document.getElementById("formRegistro");
-    const canvas = document.getElementById("firma");
-    const ctx = canvas.getContext("2d");
-    let dibujando = false;
+<hr>
 
-    // Variables para guardar la última posición
-    let lastX = 0;
-    let lastY = 0;
+<label>ARL</label>
+<input id="arl">
 
-    canvas.addEventListener("mousedown", (e) => {
-      dibujando = true;
-      const rect = canvas.getBoundingClientRect();
-      lastX = e.clientX - rect.left;
-      lastY = e.clientY - rect.top;
+<label>EPS</label>
+<input id="eps">
+
+<label>RH</label>
+<input id="rh">
+
+<label>Alergias</label>
+<input id="alergias">
+
+<label>Contacto emergencia (Nombre y Teléfono)</label>
+<input id="emergencia">
+
+<label>A quién visita</label>
+<input id="visita">
+
+<label>Laptop - Serial</label>
+<input id="serial">
+
+<label>Laptop - Hora ingreso</label>
+<input id="laptopIngreso">
+
+<label>Laptop - Hora salida</label>
+<input id="laptopSalida">
+
+<hr>
+
+<label>Firma</label>
+<canvas id="firma"></canvas>
+<button type="button" id="limpiar">Limpiar firma</button>
+
+<label class="small">
+<input type="checkbox" id="aceptaDatos" required>
+Acepto tratamiento de datos personales
+</label>
+
+<button type="submit">Registrar</button>
+
+</form>
+
+<script>
+const canvas = document.getElementById("firma");
+const ctx = canvas.getContext("2d");
+
+let dibujando = false;
+let lastX = 0;
+let lastY = 0;
+
+// Soporte mouse + celular
+const getPos = (e) => {
+  const rect = canvas.getBoundingClientRect();
+  if (e.touches) {
+    return {
+      x: e.touches[0].clientX - rect.left,
+      y: e.touches[0].clientY - rect.top
+    };
+  }
+  return {
+    x: e.clientX - rect.left,
+    y: e.clientY - rect.top
+  };
+};
+
+const iniciar = (e) => {
+  dibujando = true;
+  const pos = getPos(e);
+  lastX = pos.x;
+  lastY = pos.y;
+};
+
+const dibujar = (e) => {
+  if (!dibujando) return;
+  e.preventDefault();
+
+  const pos = getPos(e);
+
+  ctx.beginPath();
+  ctx.moveTo(lastX, lastY);
+  ctx.lineTo(pos.x, pos.y);
+  ctx.strokeStyle = "#001f3d";
+  ctx.lineWidth = 2;
+  ctx.lineCap = "round";
+  ctx.stroke();
+
+  lastX = pos.x;
+  lastY = pos.y;
+};
+
+const detener = () => dibujando = false;
+
+// Eventos
+canvas.addEventListener("mousedown", iniciar);
+canvas.addEventListener("mousemove", dibujar);
+canvas.addEventListener("mouseup", detener);
+canvas.addEventListener("mouseout", detener);
+
+canvas.addEventListener("touchstart", iniciar);
+canvas.addEventListener("touchmove", dibujar);
+canvas.addEventListener("touchend", detener);
+
+// Limpiar firma SOLO manual
+document.getElementById("limpiar").onclick = () => {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
+// Envío
+document.getElementById("formRegistro").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const data = {
+    nombre: nombre.value,
+    tipoDocumento: tipoDocumento.value,
+    documento: documento.value,
+    contacto: contacto.value,
+    empresa: empresa.value,
+    alcocheck: alcocheck.value,
+    arl: arl.value,
+    eps: eps.value,
+    rh: rh.value,
+    alergias: alergias.value,
+    emergencia: emergencia.value,
+    visita: visita.value,
+    serial: serial.value,
+    laptopIngreso: laptopIngreso.value,
+    laptopSalida: laptopSalida.value,
+    firma: canvas.toDataURL(),
+    aceptaDatos: aceptaDatos.checked
+  };
+
+  const res = await fetch("http://127.0.0.1:5000/registro", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  });
+
+  if(res.ok){
+    alert("Guardado ✅");
+
+    // LIMPIAR SOLO CAMPOS (NO FIRMA)
+    document.querySelectorAll("input").forEach(i => {
+      if(i.type !== "checkbox") i.value = "";
     });
+    document.querySelectorAll("select").forEach(s => s.selectedIndex = 0);
+    aceptaDatos.checked = false;
 
-    canvas.addEventListener("mouseup", () => dibujando = false);
-    canvas.addEventListener("mouseout", () => dibujando = false);
+  } else {
+    alert("Error");
+  }
+});
+</script>
 
-    canvas.addEventListener("mousemove", (e) => {
-      if (!dibujando) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ctx.strokeStyle = "#001f3d";
-      ctx.lineWidth = 2;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(x, y);
-      ctx.stroke();
-      lastX = x;
-      lastY = y;
-    });
-
-    document.getElementById("borrarFirma").addEventListener("click", () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const dataURL = canvas.toDataURL(); // firma como base64
-      const data = {
-        nombre: document.getElementById("nombre").value,
-        tipoDocumento: document.getElementById("tipoDocumento").value,
-        documento: document.getElementById("documento").value,
-        contacto: document.getElementById("contacto").value,
-        empresa: document.getElementById("empresa").value,
-        alcocheck: document.getElementById("alcocheck").value,
-        aceptaDatos: document.getElementById("aceptaDatos").checked,
-        firma: dataURL
-      };
-
-      try {
-        const response = await fetch("http://127.0.0.1:5000/registro", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-
-        if (response.ok) {
-          alert("Registro guardado correctamente ✅");
-          form.reset();
-          // Mantener la firma en canvas hasta que el usuario borre manualmente
-        } else {
-          const resData = await response.json();
-          alert("Error: " + resData.error);
-        }
-      } catch (err) {
-        alert("Error de conexión con el servidor.");
-      }
-    });
-  </script>
 </body>
 </html>
