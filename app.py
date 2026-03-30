@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 from openpyxl import load_workbook
 from datetime import datetime
@@ -95,6 +95,7 @@ def guardar_registro(data):
         try:
             wb.save(tmp_file)
             os.replace(tmp_file, ruta_excel)
+            app.logger.info(f"Registro guardado exitosamente en {ruta_excel}")
             return
         except PermissionError as e:
             last_error = e
@@ -116,6 +117,14 @@ def home():
 @app.route("/status", methods=["GET"])
 def status():
     return jsonify({"status": "ok", "app": "visitor-registration", "time": datetime.now().isoformat()})
+
+
+@app.route("/download", methods=["GET"])
+def download_excel():
+    if os.path.exists(ruta_excel):
+        return send_file(ruta_excel, as_attachment=True, download_name="Registro_Visitantes.xlsx")
+    else:
+        return jsonify({"error": "Archivo no encontrado"}), 404
 
 
 @app.route("/registro", methods=["POST"])
