@@ -227,6 +227,8 @@ function firmaVacia() {
   return canvas.toDataURL() === blank.toDataURL();
 }
 
+const API_BASE = "https://slb-digital-forms.onrender.com";
+
 // 🔹 SUBMIT
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -259,7 +261,7 @@ form.addEventListener("submit", async (e) => {
   };
 
   try {
-    const response = await fetch("http://127.0.0.1:5000/registro", {
+    const response = await fetch(`${API_BASE}/registro`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)

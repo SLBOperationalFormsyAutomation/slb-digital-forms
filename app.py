@@ -11,8 +11,8 @@ import time
 app = Flask(__name__)
 CORS(app)
 
-# Ruta de tu Excel en OneDrive
-ruta_excel = r"C:\Users\JTibaduiza2\OneDrive - SLB\Registro_Visitantes.xlsx"
+# Ruta de tu Excel (en Render debe usarse /tmp, local puede ser OneDrive)
+ruta_excel = os.getenv("RUTA_EXCEL", r"C:\Users\JTibaduiza2\OneDrive - SLB\Registro_Visitantes.xlsx")
 
 
 def guardar_registro(data):
@@ -111,6 +111,11 @@ def guardar_registro(data):
 @app.route("/", methods=["GET"])
 def home():
     return render_template("index.html")
+
+
+@app.route("/status", methods=["GET"])
+def status():
+    return jsonify({"status": "ok", "app": "visitor-registration", "time": datetime.now().isoformat()})
 
 
 @app.route("/registro", methods=["POST"])
