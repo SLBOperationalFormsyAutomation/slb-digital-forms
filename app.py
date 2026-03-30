@@ -14,6 +14,26 @@ ruta_excel = r"C:\Users\JTibaduiza2\OneDrive - SLB\Registro_Visitantes.xlsx"
 
 
 def guardar_registro(data):
+    # Verifica datos obligatorios
+    if not data.get("firma"):
+        raise ValueError("Firma no proporcionada")
+    firma = data.get("firma")
+    if "," not in firma or not firma.split(",")[1].strip():
+        raise ValueError("Firma en formato inválido")
+
+    # Crea workbook si no existe
+    import os
+    if not os.path.exists(ruta_excel):
+        from openpyxl import Workbook
+        wb = Workbook()
+        ws = wb.active
+        ws.append([
+            "#", "Fecha", "Hora", "--", "Nombre", "Documento", "Contacto",
+            "Empresa", "Alcocheck", "ARL", "EPS", "RH", "Alergias",
+            "Emergencia", "Visita", "Serial", "LaptopIngreso", "LaptopSalida", "Firma"
+        ])
+        wb.save(ruta_excel)
+
     wb = load_workbook(ruta_excel)
     ws = wb.active
 
@@ -86,6 +106,7 @@ def registro():
         guardar_registro(data)
         return jsonify({"ok": True})
     except Exception as e:
+        app.logger.exception("Error en /registro")
         return jsonify({"error": str(e)}), 500
 
 
