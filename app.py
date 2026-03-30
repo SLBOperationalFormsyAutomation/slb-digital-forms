@@ -88,25 +88,15 @@ def guardar_registro(data):
     # 🔹 4. Ajustar altura de fila
     ws.row_dimensions[fila_excel].height = 50
 
-    # Guardar archivo con flujo seguro: temp + replace + retry (para evitar bloqueo de Excel abierto)
-    tmp_file = ruta_excel + ".tmp"
-    last_error = None
-    for attempt in range(5):
-        try:
-            wb.save(tmp_file)
-            os.replace(tmp_file, ruta_excel)
-            app.logger.info(f"Registro guardado exitosamente en {ruta_excel}")
-            return
-        except PermissionError as e:
-            last_error = e
-            time.sleep(0.8)
-    # Si seguimos fallando, eliminar temp y lanzar error
-    if os.path.exists(tmp_file):
-        try:
-            os.remove(tmp_file)
-        except:
-            pass
-    raise last_error or IOError("No se pudo guardar el archivo")
+    # Guardar de forma directa en el archivo original
+    try:
+        wb.save(ruta_excel)
+        app.logger.info(f"Registro guardado exitosamente en {ruta_excel}")
+        return
+    except Exception as e:
+        app.logger.exception("Error al guardar archivo Excel")
+        raise
+
 
 
 @app.route("/", methods=["GET"])
