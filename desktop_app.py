@@ -10,7 +10,7 @@ from openpyxl.styles import PatternFill, Font, Alignment
 from io import BytesIO
 from PIL import Image
 import base64
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A3
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as RLImage, Spacer
@@ -65,29 +65,57 @@ def descargar_reporte(formato):
             ws = wb.active
             ws.title = "Registros"
 
-            # Excluir created_at e id
-            all_keys = list(data[0].keys())
-            headers = [h for h in all_keys if h not in ['created_at', 'id']]
-            
-            # Estilo de encabezados (Azul SLB)
+            # Encabezados y orden fijo
+            keys_order = [
+                'id', 'nombre', 'tipoDocumento', 'documento', 'contacto', 'empresa', 'alcocheck',
+                'arl', 'eps', 'rh', 'alergias', 'emergencia', 'visita', 'serial', 'laptopIngreso',
+                'laptopSalida', 'aceptaDatos', 'firma', 'fechaRegistro'
+            ]
+            headers_map = {
+                'id': 'ID',
+                'nombre': 'Nombre Completo',
+                'tipoDocumento': 'Tipo de documento',
+                'documento': 'Documento',
+                'contacto': 'Contacto',
+                'empresa': 'Empresa',
+                'alcocheck': 'Alcocheck',
+                'arl': 'ARL',
+                'eps': 'EPS',
+                'rh': 'RH',
+                'alergias': 'Alergias',
+                'emergencia': 'Contacto de emergencia',
+                'visita': 'A quien visita',
+                'serial': 'Serial Laptop',
+                'laptopIngreso': 'Hora ingreso Laptop',
+                'laptopSalida': 'Hora Salida Laptop',
+                'aceptaDatos': 'Acepta terminos y condiciones',
+                'firma': 'Firma',
+                'fechaRegistro': 'Fecha de registro'
+            }
+
+            valid_keys = [k for k in keys_order if k in data[0] or k == 'id']
+
             header_fill = PatternFill(start_color="003366", end_color="003366", fill_type="solid")
             header_font = Font(bold=True, color="FFFFFF", size=12)
             header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-            
-            for col_num, header in enumerate(headers, 1):
-                cell = ws.cell(row=1, column=col_num, value=header)
+
+            for col_num, key in enumerate(valid_keys, 1):
+                label = headers_map.get(key, key)
+                cell = ws.cell(row=1, column=col_num, value=label)
                 cell.fill = header_fill
                 cell.font = header_font
                 cell.alignment = header_alignment
-            
+
             ws.row_dimensions[1].height = 30
 
             # Datos
-            for row_num, reg in enumerate(data, 2):
+            for row_index, reg in enumerate(data, 1):
+                row_num = row_index + 1
                 row_height = 20
-                for col_num, key in enumerate(headers, 1):
-                    if key == "firma" and reg.get(key):
-                        # Insertar imagen de firma
+                for col_num, key in enumerate(valid_keys, 1):
+                    if key == 'id':
+                        ws.cell(row=row_num, column=col_num, value=str(row_index))
+                    elif key == "firma" and reg.get(key):
                         try:
                             firma_base64 = reg[key]
                             if isinstance(firma_base64, str) and ',' in firma_base64:
@@ -109,8 +137,9 @@ def descargar_reporte(formato):
                     elif key == "fechaRegistro" and reg.get(key):
                         ws.cell(row=row_num, column=col_num, value=formatear_fecha(reg[key]))
                     else:
-                        ws.cell(row=row_num, column=col_num, value=reg.get(key, ""))
-                
+                        if key != 'id':
+                            ws.cell(row=row_num, column=col_num, value=reg.get(key, ""))
+
                 ws.row_dimensions[row_num].height = row_height
             
             # Ajustar ancho de columnas
@@ -132,23 +161,48 @@ def descargar_reporte(formato):
             if not file_path:
                 return
             # Generar PDF
-            doc = SimpleDocTemplate(file_path, pagesize=landscape(A4), topMargin=0.25*inch, bottomMargin=0.25*inch, leftMargin=0.1*inch, rightMargin=0.1*inch)
+            doc = SimpleDocTemplate(file_path, pagesize=landscape(A3), topMargin=0.25*inch, bottomMargin=0.25*inch, leftMargin=0.1*inch, rightMargin=0.1*inch)
             elements = []
 
-            # Datos para tabla - Excluir created_at e id
-            all_keys = list(data[0].keys())
-            headers = [h for h in all_keys if h not in ['created_at', 'id']]
-            table_data = [headers]  # Headers
-            
-            for idx, reg in enumerate(data, 1):
-                row = [str(idx)]  # Agregar número de fila (1, 2, 3...)
-                row_headers = ['#'] + headers  # Agregar columna # al inicio
-                
-                for key in headers:
-                    if key == "firma" and reg.get(key):
-                        # Para PDF, insertar imagen
+            # Datos para tabla con encabezados personalizados y orden fijo
+            keys_order = [
+                'id', 'nombre', 'tipoDocumento', 'documento', 'contacto', 'empresa', 'alcocheck',
+                'arl', 'eps', 'rh', 'alergias', 'emergencia', 'visita', 'serial', 'laptopIngreso',
+                'laptopSalida', 'aceptaDatos', 'firma', 'fechaRegistro'
+            ]
+            headers_map = {
+                'id': 'ID',
+                'nombre': 'Nombre Completo',
+                'tipoDocumento': 'Tipo de documento',
+                'documento': 'Documento',
+                'contacto': 'Contacto',
+                'empresa': 'Empresa',
+                'alcocheck': 'Alcocheck',
+                'arl': 'ARL',
+                'eps': 'EPS',
+                'rh': 'RH',
+                'alergias': 'Alergias',
+                'emergencia': 'Contacto de emergencia',
+                'visita': 'A quien visita',
+                'serial': 'Serial Laptop',
+                'laptopIngreso': 'Hora ingreso Laptop',
+                'laptopSalida': 'Hora Salida Laptop',
+                'aceptaDatos': 'Acepta terminos y condiciones',
+                'firma': 'Firma',
+                'fechaRegistro': 'Fecha de registro'
+            }
+
+            keys_final = [k for k in keys_order if k in data[0] or k == 'id']
+            table_data = [[headers_map.get(k, k) for k in keys_final]]
+
+            for row_index, reg in enumerate(data, 1):
+                row = []
+                for key in keys_final:
+                    if key == 'id':
+                        row.append(str(row_index))
+                    elif key == 'firma' and reg.get('firma'):
                         try:
-                            firma_base64 = reg[key]
+                            firma_base64 = reg['firma']
                             if ',' in firma_base64:
                                 firma_data = base64.b64decode(firma_base64.split(',')[1])
                             else:
@@ -156,19 +210,14 @@ def descargar_reporte(formato):
                             img = Image.open(BytesIO(firma_data))
                             img_path = f"temp_firma_pdf_{len(table_data)}.png"
                             img.save(img_path)
-                            rl_img = RLImage(img_path, width=20, height=12)
-                            row.append(rl_img)
+                            row.append(RLImage(img_path, width=20, height=12))
                         except:
-                            row.append("Firma")
-                    elif key == "fechaRegistro" and reg.get(key):
-                        row.append(formatear_fecha(reg[key]))
+                            row.append('Firma')
+                    elif key == 'fechaRegistro' and reg.get('fechaRegistro'):
+                        row.append(formatear_fecha(reg['fechaRegistro']))
                     else:
                         row.append(str(reg.get(key, "")))
                 table_data.append(row)
-            
-            # Actualizar headers con la columna de numeración
-            if table_data:
-                table_data[0] = ['#'] + table_data[0]
 
             # Crear tabla con ancho optimizado para mostrar todas las columnas
             # Calcular ancho dinámico basado en contenido
@@ -178,17 +227,24 @@ def descargar_reporte(formato):
             # Calcular ancho requerido por columna basándose en el contenido más largo
             col_widths = []
             for col_idx in range(num_cols):
+                header = table_data[0][col_idx] if table_data else ""
                 max_content_length = 0
-                for row_data in table_data:
+                for row_data in table_data[1:]:  # Saltar header
                     if col_idx < len(row_data):
                         content = str(row_data[col_idx]).replace('\n', ' ')
                         max_content_length = max(max_content_length, len(content))
                 
-                # Estimar ancho basado en longitud del contenido (aproximadamente 8 caracteres por pulgada, aumentado para más espacio)
-                if col_idx == 0:  # Columna #
-                    estimated_width = 0.6 * inch
+                # Ancho especial por columna personalizada
+                if header == "Firma":
+                    estimated_width = 1.5 * inch
+                elif header == "Tipo de documento":
+                    estimated_width = 2.2 * inch
+                elif header in ["Nombre Completo", "Contacto de emergencia"]:
+                    estimated_width = 3.0 * inch
+                elif max_content_length > 70:
+                    estimated_width = (max_content_length / 6) * 0.2 * inch + 0.9 * inch
                 elif max_content_length > 50:
-                    estimated_width = (max_content_length / 6) * 0.2 * inch + 0.6 * inch
+                    estimated_width = 2.0 * inch
                 elif max_content_length > 30:
                     estimated_width = 1.5 * inch
                 elif max_content_length > 15:
@@ -200,7 +256,7 @@ def descargar_reporte(formato):
             
             # Ajustar si el ancho total excede el disponible, pero permitir más espacio
             total_width = sum(col_widths)
-            available_width = 11.5 * inch  # Ancho disponible en A4 landscape con márgenes reducidos
+            available_width = 16.3 * inch  # Ancho disponible en A3 landscape con márgenes reducidos
             if total_width > available_width:
                 scale_factor = available_width / total_width
                 col_widths = [w * scale_factor for w in col_widths]
