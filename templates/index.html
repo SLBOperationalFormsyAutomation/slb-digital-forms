@@ -81,8 +81,6 @@
       font-size: 0.85em;
     }
   </style>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
   <form id="formRegistro">
@@ -109,8 +107,14 @@
       </select>
     </label>
 
-    <label>Laptop - Hora de ingreso:<input type="text" id="laptopIngreso"></label>
-    <label>Laptop - Hora de salida:<input type="text" id="laptopSalida"></label>
+    <label>Laptop - Hora de ingreso:
+      <select id="horaIngreso" required></select> :
+      <select id="minutoIngreso" required></select>
+    </label>
+    <label>Laptop - Hora de salida:
+      <select id="horaSalida" required></select> :
+      <select id="minutoSalida" required></select>
+    </label>
 
     <label>Firma digital:
       <canvas id="firma"></canvas>
@@ -155,20 +159,20 @@
       ctx.beginPath();
     });
 
-    // Inicializar time pickers
-    flatpickr("#laptopIngreso", {
-      enableTime: true,
-      noCalendar: true,
-      dateFormat: "H:i",
-      time_24hr: true
-    });
+    // Poblar selects de hora
+    function poblarSelect(select, start, end, step = 1) {
+      for (let i = start; i <= end; i += step) {
+        const option = document.createElement("option");
+        option.value = i.toString().padStart(2, '0');
+        option.text = i.toString().padStart(2, '0');
+        select.appendChild(option);
+      }
+    }
 
-    flatpickr("#laptopSalida", {
-      enableTime: true,
-      noCalendar: true,
-      dateFormat: "H:i",
-      time_24hr: true
-    });
+    poblarSelect(document.getElementById("horaIngreso"), 0, 23);
+    poblarSelect(document.getElementById("minutoIngreso"), 0, 59);
+    poblarSelect(document.getElementById("horaSalida"), 0, 23);
+    poblarSelect(document.getElementById("minutoSalida"), 0, 59);
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -181,8 +185,8 @@
         contacto: document.getElementById("contacto").value,
         empresa: document.getElementById("empresa").value,
         alcocheck: document.getElementById("alcocheck").value,
-        laptopIngreso: document.getElementById("laptopIngreso").value,
-        laptopSalida: document.getElementById("laptopSalida").value,
+        laptopIngreso: `${document.getElementById("horaIngreso").value}:${document.getElementById("minutoIngreso").value}`,
+        laptopSalida: `${document.getElementById("horaSalida").value}:${document.getElementById("minutoSalida").value}`,
         aceptaDatos: document.getElementById("aceptaDatos").checked,
         firma: dataURL
       };
