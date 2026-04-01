@@ -154,7 +154,7 @@ def descargar_reporte(formato):
                             img = Image.open(BytesIO(firma_data))
                             img_path = f"temp_firma_pdf_{len(table_data)}.png"
                             img.save(img_path)
-                            rl_img = RLImage(img_path, width=40, height=25)
+                            rl_img = RLImage(img_path, width=28, height=18)
                             row.append(rl_img)
                         except:
                             row.append("Firma")
@@ -164,21 +164,30 @@ def descargar_reporte(formato):
                         row.append(str(reg.get(key, ""))[:30])  # Limitar texto a 30 caracteres
                 table_data.append(row)
 
-            # Crear tabla con ancho automático
-            col_widths = [1.2*inch if h != 'firma' else 0.8*inch for h in headers]
+            # Crear tabla con ancho optimizado para mostrar todas las columnas
+            # Calcular ancho dinámico basado en número de columnas
+            num_cols = len(headers)
+            available_width = 10.5 * inch  # Ancho disponible en landscape
+            col_width = available_width / num_cols
+            col_widths = [col_width] * num_cols
+            
             table = Table(table_data, colWidths=col_widths)
             table.setStyle(TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#003366')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 9),
-                ('FONTSIZE', (0, 1), (-1, -1), 8),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                ('TOPPADDING', (0, 0), (-1, 0), 8),
+                ('FONTSIZE', (0, 0), (-1, 0), 7),
+                ('FONTSIZE', (0, 1), (-1, -1), 6),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
+                ('TOPPADDING', (0, 0), (-1, 0), 3),
+                ('LEFTPADDING', (0, 0), (-1, -1), 2),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+                ('TOPPADDING', (0, 1), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
                 ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
             ]))
             elements.append(table)
