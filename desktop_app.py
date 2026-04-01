@@ -184,22 +184,23 @@ def descargar_reporte(formato):
                         content = str(row_data[col_idx]).replace('\n', ' ')
                         max_content_length = max(max_content_length, len(content))
                 
-                # Estimar ancho basado en longitud del contenido (aproximadamente 12 caracteres por pulgada)
+                # Estimar ancho basado en longitud del contenido (aproximadamente 10 caracteres por pulgada, aumentado para más espacio)
                 if col_idx == 0:  # Columna #
-                    estimated_width = 0.4 * inch
-                elif max_content_length > 50:
-                    estimated_width = (max_content_length / 10) * 0.1 * inch + 0.3 * inch
-                elif max_content_length > 30:
-                    estimated_width = 0.8 * inch
-                elif max_content_length > 15:
-                    estimated_width = 0.6 * inch
-                else:
                     estimated_width = 0.5 * inch
+                elif max_content_length > 50:
+                    estimated_width = (max_content_length / 8) * 0.15 * inch + 0.5 * inch
+                elif max_content_length > 30:
+                    estimated_width = 1.2 * inch
+                elif max_content_length > 15:
+                    estimated_width = 1.0 * inch
+                else:
+                    estimated_width = 0.8 * inch
                 
                 col_widths.append(estimated_width)
             
-            # Ajustar si el ancho total excede el disponible
+            # Ajustar si el ancho total excede el disponible, pero permitir más espacio
             total_width = sum(col_widths)
+            available_width = 11.5 * inch  # Aumentar ancho disponible ajustando márgenes
             if total_width > available_width:
                 scale_factor = available_width / total_width
                 col_widths = [w * scale_factor for w in col_widths]
