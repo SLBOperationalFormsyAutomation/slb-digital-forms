@@ -6,18 +6,30 @@ import os
 from datetime import datetime
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image as XLImage
+from openpyxl.styles import PatternFill, Font, Alignment
 from io import BytesIO
 from PIL import Image
 import base64
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as RLImage
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as RLImage, Spacer
 from reportlab.lib.pagesizes import landscape
+from reportlab.lib.units import inch
 
 # Configuración de Supabase
 SUPABASE_URL = "https://jfhsgobubmmedsbtenay.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmaHNnb2J1Ym1tZWRzYnRlbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM2NjgsImV4cCI6MjA5MDQ2OTY2OH0.QGs3_rYsX7e4uzUMJhtLkL47-rcdhMtZWWElsLptmrI"  # Clave real
+
+def formatear_fecha(fecha_str):
+    """Convierte fecha ISO a formato DD/MM/YYYY HH:MM:SS"""
+    try:
+        if 'T' in fecha_str:
+            dt = datetime.fromisoformat(fecha_str.replace('Z', '+00:00'))
+            return dt.strftime('%d/%m/%Y %H:%M:%S')
+        return fecha_str
+    except:
+        return fecha_str
 
 def descargar_reporte(formato):
     try:
@@ -39,23 +51,7 @@ def descargar_reporte(formato):
             return
 
         # Pedir ubicación para guardar
-        if formato == "CSV":
-            file_path = filedialog.asksaveasfilename(
-                defaultextension=".csv",
-                filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
-                title="Guardar Reporte CSV",
-                initialfile=f"reporte_visitantes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-            )
-            if not file_path:
-                return
-            # Escribir CSV
-            with open(file_path, mode='w', newline='', encoding='utf-8') as file:
-                if data:
-                    writer = csv.DictWriter(file, fieldnames=data[0].keys())
-                    writer.writeheader()
-                    writer.writerows(data)
-
-        elif formato == "Excel":
+        if formato == "Excel":
             file_path = filedialog.asksaveasfilename(
                 defaultextension=".xlsx",
                 filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
@@ -69,13 +65,26 @@ def descargar_reporte(formato):
             ws = wb.active
             ws.title = "Registros"
 
-            # Headers
-            headers = list(data[0].keys())
+            # Headers - Excluir created_at
+            all_headers = list(data[0].keys())
+            headers = [h for h in all_headers if h != 'created_at']
+            
+            # Estilo de encabezados (Azul SLB)
+            header_fill = PatternFill(start_color="003366", end_color="003366", fill_type="solid")
+            header_font = Font(bold=True, color="FFFFFF", size=12)
+            header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+            
             for col_num, header in enumerate(headers, 1):
-                ws.cell(row=1, column=col_num, value=header)
+                cell = ws.cell(row=1, column=col_num, value=header)
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = header_alignment
+            
+            ws.row_dimensions[1].height = 30
 
             # Datos
             for row_num, reg in enumerate(data, 2):
+                row_height = 20
                 for col_num, key in enumerate(headers, 1):
                     if key == "firma" and reg.get(key):
                         # Insertar imagen de firma
@@ -87,13 +96,29 @@ def descargar_reporte(formato):
                                 firma_data = base64.b64decode(firma_base64)
                             else:
                                 raise ValueError("Formato de firma inválido")
-                            img_stream = BytesIO(firma_data)
-                            xl_img = XLImage(img_stream)
+                            img = Image.open(BytesIO(firma_data))
+                            img_resized = img.resize((80, 60))
+                            img_temp = BytesIO()
+                            img_resized.save(img_temp, format='PNG')
+                            img_temp.seek(0)
+                            xl_img = XLImage(img_temp)
                             ws.add_image(xl_img, f'{chr(64 + col_num)}{row_num}')
+                            row_height = 65
                         except Exception as e:
                             ws.cell(row=row_num, column=col_num, value="Error en firma")
+                    elif key == "fechaRegistro" and reg.get(key):
+                        ws.cell(row=row_num, column=col_num, value=formatear_fecha(reg[key]))
                     else:
                         ws.cell(row=row_num, column=col_num, value=reg.get(key, ""))
+                
+                ws.row_dimensions[row_num].height = row_height
+            
+            # Ajustar ancho de columnas
+            for col_num, key in enumerate(headers, 1):
+                if key == "firma":
+                    ws.column_dimensions[chr(64 + col_num)].width = 15
+                else:
+                    ws.column_dimensions[chr(64 + col_num)].width = 18
 
             wb.save(file_path)
 
@@ -107,14 +132,17 @@ def descargar_reporte(formato):
             if not file_path:
                 return
             # Generar PDF
-            doc = SimpleDocTemplate(file_path, pagesize=landscape(letter))
+            doc = SimpleDocTemplate(file_path, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.3*inch, rightMargin=0.3*inch)
             elements = []
 
-            # Datos para tabla
-            table_data = [list(data[0].keys())]  # Headers
+            # Datos para tabla - Excluir created_at
+            all_keys = list(data[0].keys())
+            headers = [h for h in all_keys if h != 'created_at']
+            table_data = [headers]  # Headers
+            
             for reg in data:
                 row = []
-                for key in data[0].keys():
+                for key in headers:
                     if key == "firma" and reg.get(key):
                         # Para PDF, insertar imagen
                         try:
@@ -126,25 +154,32 @@ def descargar_reporte(formato):
                             img = Image.open(BytesIO(firma_data))
                             img_path = f"temp_firma_pdf_{len(table_data)}.png"
                             img.save(img_path)
-                            rl_img = RLImage(img_path, width=50, height=30)
+                            rl_img = RLImage(img_path, width=40, height=25)
                             row.append(rl_img)
-                            # Limpiar después
                         except:
-                            row.append("Firma no disponible")
+                            row.append("Firma")
+                    elif key == "fechaRegistro" and reg.get(key):
+                        row.append(formatear_fecha(reg[key]))
                     else:
-                        row.append(str(reg.get(key, "")))
+                        row.append(str(reg.get(key, ""))[:30])  # Limitar texto a 30 caracteres
                 table_data.append(row)
 
-            table = Table(table_data)
+            # Crear tabla con ancho automático
+            col_widths = [1.2*inch if h != 'firma' else 0.8*inch for h in headers]
+            table = Table(table_data, colWidths=col_widths)
             table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#003366')),
                 ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 14),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 0), (-1, 0), 9),
+                ('FONTSIZE', (0, 1), (-1, -1), 8),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                ('TOPPADDING', (0, 0), (-1, 0), 8),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
             ]))
             elements.append(table)
             doc.build(elements)
@@ -192,8 +227,8 @@ format_frame = tk.Frame(main_frame, bg="#003366")
 format_frame.pack(pady=10)
 format_label = tk.Label(format_frame, text="Formato del reporte:", fg="white", bg="#003366", font=("Arial", 10))
 format_label.pack(side="left")
-format_combo = ttk.Combobox(format_frame, values=["CSV", "Excel", "PDF"], state="readonly")
-format_combo.current(0)  # Default CSV
+format_combo = ttk.Combobox(format_frame, values=["Excel", "PDF"], state="readonly")
+format_combo.current(0)  # Default Excel
 format_combo.pack(side="left", padx=10)
 
 # Botón
@@ -202,7 +237,7 @@ button = tk.Button(main_frame, text="Descargar Reporte", command=lambda: descarg
 button.pack(pady=20)
 
 # Instrucciones
-instructions = tk.Label(main_frame, text="Selecciona el formato y haz clic para descargar.\nLos formatos Excel y PDF incluyen imágenes de firmas.", 
+instructions = tk.Label(main_frame, text="Selecciona el formato y haz clic para descargar.\nExcel y PDF incluyen encabezados con colores SLB.", 
                         fg="white", bg="#003366", font=("Arial", 9), wraplength=400, justify="center")
 instructions.pack(pady=10)
 
