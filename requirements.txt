@@ -4,3 +4,5 @@ openpyxl
 gunicorn
 Pillow
 requests
+pyinstaller
+reportlab
