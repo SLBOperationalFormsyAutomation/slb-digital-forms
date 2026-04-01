@@ -171,11 +171,38 @@ def descargar_reporte(formato):
                 table_data[0] = ['#'] + table_data[0]
 
             # Crear tabla con ancho optimizado para mostrar todas las columnas
-            # Calcular ancho dinámico basado en número de columnas
+            # Calcular ancho dinámico basado en contenido
             num_cols = len(table_data[0]) if table_data else 0
             available_width = 10.7 * inch  # Ancho disponible en landscape
-            col_width = available_width / num_cols if num_cols > 0 else 1 * inch
-            col_widths = [col_width * 0.8 if i == 0 else col_width for i in range(num_cols)]  # Columna # más estrecha
+            
+            # Calcular ancho requerido por columna basándose en el contenido más largo
+            col_widths = []
+            for col_idx in range(num_cols):
+                max_content_length = 0
+                for row_data in table_data:
+                    if col_idx < len(row_data):
+                        content = str(row_data[col_idx]).replace('\n', ' ')
+                        max_content_length = max(max_content_length, len(content))
+                
+                # Estimar ancho basado en longitud del contenido (aproximadamente 12 caracteres por pulgada)
+                if col_idx == 0:  # Columna #
+                    estimated_width = 0.4 * inch
+                elif max_content_length > 50:
+                    estimated_width = (max_content_length / 10) * 0.1 * inch + 0.3 * inch
+                elif max_content_length > 30:
+                    estimated_width = 0.8 * inch
+                elif max_content_length > 15:
+                    estimated_width = 0.6 * inch
+                else:
+                    estimated_width = 0.5 * inch
+                
+                col_widths.append(estimated_width)
+            
+            # Ajustar si el ancho total excede el disponible
+            total_width = sum(col_widths)
+            if total_width > available_width:
+                scale_factor = available_width / total_width
+                col_widths = [w * scale_factor for w in col_widths]
             
             table = Table(table_data, colWidths=col_widths)
             table.setStyle(TableStyle([
@@ -184,16 +211,17 @@ def descargar_reporte(formato):
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 5),
+                ('FONTSIZE', (0, 0), (-1, 0), 6),
                 ('FONTSIZE', (0, 1), (-1, -1), 5),
-                ('LEFTPADDING', (0, 0), (-1, -1), 1),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
-                ('TOPPADDING', (0, 0), (-1, -1), 1),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+                ('LEFTPADDING', (0, 0), (-1, -1), 2),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+                ('TOPPADDING', (0, 0), (-1, -1), 2),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
                 ('BACKGROUND', (0, 1), (-1, -1), colors.white),
                 ('GRID', (0, 0), (-1, -1), 0.2, colors.grey),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
-                ('WORDWRAP', (0, 0), (-1, -1), 'LTR'),
+                ('WORDWRAP', (0, 0), (-1, -1), 'CTR'),
+                ('WRAP', (0, 0), (-1, -1)),
             ]))
             elements.append(table)
             doc.build(elements)
