@@ -127,10 +127,10 @@ button {
 <input id="serial">
 
 <label>Laptop - Hora ingreso</label>
-<select id="horaIngreso" required></select> : <select id="minutoIngreso" required></select>
+<input type="time" id="laptopIngreso" required>
 
 <label>Laptop - Hora salida</label>
-<select id="horaSalida" required></select> : <select id="minutoSalida" required></select>
+<input type="time" id="laptopSalida" required>
 
 <hr>
 
@@ -220,21 +220,6 @@ document.getElementById("limpiar").addEventListener("click", () => {
   ctx.beginPath();
 });
 
-// 🔹 POBLAR SELECTS DE HORA
-function poblarSelect(select, start, end, step = 1) {
-  for (let i = start; i <= end; i += step) {
-    const option = document.createElement("option");
-    option.value = i.toString().padStart(2, '0');
-    option.text = i.toString().padStart(2, '0');
-    select.appendChild(option);
-  }
-}
-
-poblarSelect(document.getElementById("horaIngreso"), 0, 23);
-poblarSelect(document.getElementById("minutoIngreso"), 0, 59);
-poblarSelect(document.getElementById("horaSalida"), 0, 23);
-poblarSelect(document.getElementById("minutoSalida"), 0, 59);
-
 // 🔹 VALIDAR SI FIRMA ESTÁ VACÍA
 function firmaVacia() {
   const blank = document.createElement("canvas");
@@ -270,8 +255,8 @@ form.addEventListener("submit", async (e) => {
     emergencia: document.getElementById("emergencia").value,
     visita: document.getElementById("visita").value,
     serial: document.getElementById("serial").value,
-    laptopIngreso: `${document.getElementById("horaIngreso").value}:${document.getElementById("minutoIngreso").value}`,
-    laptopSalida: `${document.getElementById("horaSalida").value}:${document.getElementById("minutoSalida").value}`,
+    laptopIngreso: document.getElementById("laptopIngreso").value,
+    laptopSalida: document.getElementById("laptopSalida").value,
     aceptaDatos: document.getElementById("aceptaDatos").checked,
     firma: dataURL
   };
