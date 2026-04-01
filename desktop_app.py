@@ -13,10 +13,11 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image as RLImage
+from reportlab.lib.pagesizes import landscape
 
 # Configuración de Supabase
 SUPABASE_URL = "https://jfhsgobubmmedsbtenay.supabase.co"
-SUPABASE_ANON_KEY = "tu-anon-key"  # Reemplaza con tu clave real de Supabase
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmaHNnb2J1Ym1tZWRzYnRlbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM2NjgsImV4cCI6MjA5MDQ2OTY2OH0.QGs3_rYsX7e4uzUMJhtLkL47-rcdhMtZWWElsLptmrI"  # Clave real
 
 def descargar_reporte(formato):
     try:
@@ -80,16 +81,15 @@ def descargar_reporte(formato):
                         # Insertar imagen de firma
                         try:
                             firma_base64 = reg[key]
-                            if ',' in firma_base64:
+                            if isinstance(firma_base64, str) and ',' in firma_base64:
                                 firma_data = base64.b64decode(firma_base64.split(',')[1])
-                            else:
+                            elif isinstance(firma_base64, str):
                                 firma_data = base64.b64decode(firma_base64)
-                            img = Image.open(BytesIO(firma_data))
-                            img_path = f"temp_firma_{row_num}.png"
-                            img.save(img_path)
-                            xl_img = XLImage(img_path)
+                            else:
+                                raise ValueError("Formato de firma inválido")
+                            img_stream = BytesIO(firma_data)
+                            xl_img = XLImage(img_stream)
                             ws.add_image(xl_img, f'{chr(64 + col_num)}{row_num}')
-                            os.remove(img_path)  # Limpiar temp
                         except Exception as e:
                             ws.cell(row=row_num, column=col_num, value="Error en firma")
                     else:
@@ -107,7 +107,7 @@ def descargar_reporte(formato):
             if not file_path:
                 return
             # Generar PDF
-            doc = SimpleDocTemplate(file_path, pagesize=letter)
+            doc = SimpleDocTemplate(file_path, pagesize=landscape(letter))
             elements = []
 
             # Datos para tabla
@@ -148,6 +148,11 @@ def descargar_reporte(formato):
             ]))
             elements.append(table)
             doc.build(elements)
+            # Limpiar archivos temp
+            for i in range(len(table_data)):
+                temp_path = f"temp_firma_pdf_{i}.png"
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
 
         messagebox.showinfo("Éxito", f"Reporte descargado exitosamente en {file_path}")
 
