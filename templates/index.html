@@ -39,7 +39,7 @@
       font-weight: bold;
     }
 
-    input[type="text"], select {
+    input[type="text"], input[type="time"], select {
       width: 100%;
       padding: 8px;
       margin-top: 4px;
@@ -107,6 +107,9 @@
       </select>
     </label>
 
+    <label>Laptop - Hora de ingreso:<input type="time" id="laptopIngreso"></label>
+    <label>Laptop - Hora de salida:<input type="time" id="laptopSalida"></label>
+
     <label>Firma digital:
       <canvas id="firma"></canvas>
       <button type="button" id="borrarFirma" style="margin-top:5px;">Borrar Firma</button>
@@ -161,6 +164,8 @@
         contacto: document.getElementById("contacto").value,
         empresa: document.getElementById("empresa").value,
         alcocheck: document.getElementById("alcocheck").value,
+        laptopIngreso: document.getElementById("laptopIngreso").value,
+        laptopSalida: document.getElementById("laptopSalida").value,
         aceptaDatos: document.getElementById("aceptaDatos").checked,
         firma: dataURL
       };

@@ -65,9 +65,9 @@ def descargar_reporte(formato):
             ws = wb.active
             ws.title = "Registros"
 
-            # Headers - Excluir created_at
-            all_headers = list(data[0].keys())
-            headers = [h for h in all_headers if h != 'created_at']
+            # Excluir created_at e id
+            all_keys = list(data[0].keys())
+            headers = [h for h in all_keys if h not in ['created_at', 'id']]
             
             # Estilo de encabezados (Azul SLB)
             header_fill = PatternFill(start_color="003366", end_color="003366", fill_type="solid")
@@ -132,16 +132,18 @@ def descargar_reporte(formato):
             if not file_path:
                 return
             # Generar PDF
-            doc = SimpleDocTemplate(file_path, pagesize=landscape(letter), topMargin=0.5*inch, bottomMargin=0.5*inch, leftMargin=0.3*inch, rightMargin=0.3*inch)
+            doc = SimpleDocTemplate(file_path, pagesize=landscape(letter), topMargin=0.25*inch, bottomMargin=0.25*inch, leftMargin=0.2*inch, rightMargin=0.2*inch)
             elements = []
 
-            # Datos para tabla - Excluir created_at
+            # Datos para tabla - Excluir created_at e id
             all_keys = list(data[0].keys())
-            headers = [h for h in all_keys if h != 'created_at']
+            headers = [h for h in all_keys if h not in ['created_at', 'id']]
             table_data = [headers]  # Headers
             
-            for reg in data:
-                row = []
+            for idx, reg in enumerate(data, 1):
+                row = [str(idx)]  # Agregar número de fila (1, 2, 3...)
+                row_headers = ['#'] + headers  # Agregar columna # al inicio
+                
                 for key in headers:
                     if key == "firma" and reg.get(key):
                         # Para PDF, insertar imagen
@@ -154,22 +156,26 @@ def descargar_reporte(formato):
                             img = Image.open(BytesIO(firma_data))
                             img_path = f"temp_firma_pdf_{len(table_data)}.png"
                             img.save(img_path)
-                            rl_img = RLImage(img_path, width=28, height=18)
+                            rl_img = RLImage(img_path, width=20, height=12)
                             row.append(rl_img)
                         except:
                             row.append("Firma")
                     elif key == "fechaRegistro" and reg.get(key):
                         row.append(formatear_fecha(reg[key]))
                     else:
-                        row.append(str(reg.get(key, ""))[:30])  # Limitar texto a 30 caracteres
+                        row.append(str(reg.get(key, "")))
                 table_data.append(row)
+            
+            # Actualizar headers con la columna de numeración
+            if table_data:
+                table_data[0] = ['#'] + table_data[0]
 
             # Crear tabla con ancho optimizado para mostrar todas las columnas
             # Calcular ancho dinámico basado en número de columnas
-            num_cols = len(headers)
-            available_width = 10.5 * inch  # Ancho disponible en landscape
-            col_width = available_width / num_cols
-            col_widths = [col_width] * num_cols
+            num_cols = len(table_data[0]) if table_data else 0
+            available_width = 10.7 * inch  # Ancho disponible en landscape
+            col_width = available_width / num_cols if num_cols > 0 else 1 * inch
+            col_widths = [col_width * 0.8 if i == 0 else col_width for i in range(num_cols)]  # Columna # más estrecha
             
             table = Table(table_data, colWidths=col_widths)
             table.setStyle(TableStyle([
@@ -178,17 +184,16 @@ def descargar_reporte(formato):
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 7),
-                ('FONTSIZE', (0, 1), (-1, -1), 6),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
-                ('TOPPADDING', (0, 0), (-1, 0), 3),
-                ('LEFTPADDING', (0, 0), (-1, -1), 2),
-                ('RIGHTPADDING', (0, 0), (-1, -1), 2),
-                ('TOPPADDING', (0, 1), (-1, -1), 2),
-                ('BOTTOMPADDING', (0, 1), (-1, -1), 2),
+                ('FONTSIZE', (0, 0), (-1, 0), 5),
+                ('FONTSIZE', (0, 1), (-1, -1), 5),
+                ('LEFTPADDING', (0, 0), (-1, -1), 1),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
+                ('TOPPADDING', (0, 0), (-1, -1), 1),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
                 ('BACKGROUND', (0, 1), (-1, -1), colors.white),
-                ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+                ('GRID', (0, 0), (-1, -1), 0.2, colors.grey),
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f0f0f0')]),
+                ('WORDWRAP', (0, 0), (-1, -1), 'LTR'),
             ]))
             elements.append(table)
             doc.build(elements)
