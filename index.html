@@ -1,3 +1,4 @@
+// Este es un formulario de registro de visitantes para SLB, con campos para información personal, detalles de la visita, y una sección para la firma digital. Al enviar el formulario, los datos se envían a un servidor backend para su almacenamiento. El diseño es responsivo y amigable para dispositivos móviles.
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -111,8 +112,18 @@ button {
 <label>EPS</label>
 <input id="eps">
 
-<label>RH</label>
-<input id="rh">
+<label>Tipo de sangre (RH)</label>
+<select id="rh">
+  <option value="">Seleccione...</option>
+  <option>A+</option>
+  <option>A-</option>
+  <option>B+</option>
+  <option>B-</option>
+  <option>AB+</option>
+  <option>AB-</option>
+  <option>O+</option>
+  <option>O-</option>
+</select>
 
 <label>Alergias</label>
 <input id="alergias">
@@ -123,14 +134,25 @@ button {
 <label>A quién visita</label>
 <input id="visita">
 
-<label>Laptop - Serial</label>
-<input id="serial">
+<label>¿Trae portátil?</label>
+<select id="traeLaptop">
+  <option value="">Seleccione...</option>
+  <option value="no">No</option>
+  <option value="si">Sí</option>
+</select>
 
-<label>Laptop - Hora ingreso</label>
-<input type="time" id="laptopIngreso" required>
+<div id="camposLaptop" style="display:none;">
 
-<label>Laptop - Hora salida</label>
-<input type="time" id="laptopSalida" required>
+  <label>Laptop - Serial</label>
+  <input id="serial">
+
+  <label>Laptop - Hora ingreso</label>
+  <input type="time" id="laptopIngreso">
+
+  <label>Laptop - Hora salida</label>
+  <input type="time" id="laptopSalida">
+
+</div>
 
 <hr>
 
@@ -220,6 +242,20 @@ document.getElementById("limpiar").addEventListener("click", () => {
   ctx.beginPath();
 });
 
+const traeLaptopSelect = document.getElementById("traeLaptop");
+const camposLaptop = document.getElementById("camposLaptop");
+
+traeLaptopSelect.addEventListener("change", () => {
+  if (traeLaptopSelect.value === "si") {
+    camposLaptop.style.display = "block";
+  } else {
+    camposLaptop.style.display = "none";
+
+    document.getElementById("serial").value = "";
+    document.getElementById("laptopIngreso").value = "";
+    document.getElementById("laptopSalida").value = "";
+  }
+});
 // 🔹 VALIDAR SI FIRMA ESTÁ VACÍA
 function firmaVacia() {
   const blank = document.createElement("canvas");
@@ -241,26 +277,29 @@ form.addEventListener("submit", async (e) => {
 
   const dataURL = canvas.toDataURL();
 
-  const data = {
-    nombre: document.getElementById("nombre").value,
-    tipoDocumento: document.getElementById("tipoDocumento").value,
-    documento: document.getElementById("documento").value,
-    contacto: document.getElementById("contacto").value,
-    empresa: document.getElementById("empresa").value,
-    alcocheck: document.getElementById("alcocheck").value,
-    arl: document.getElementById("arl").value,
-    eps: document.getElementById("eps").value,
-    rh: document.getElementById("rh").value,
-    alergias: document.getElementById("alergias").value,
-    emergencia: document.getElementById("emergencia").value,
-    visita: document.getElementById("visita").value,
-    serial: document.getElementById("serial").value,
-    laptopIngreso: document.getElementById("laptopIngreso").value,
-    laptopSalida: document.getElementById("laptopSalida").value,
-    aceptaDatos: document.getElementById("aceptaDatos").checked,
-    firma: dataURL
-  };
+const traeLaptop = document.getElementById("traeLaptop").value;
 
+const data = {
+  nombre: document.getElementById("nombre").value,
+  tipoDocumento: document.getElementById("tipoDocumento").value,
+  documento: document.getElementById("documento").value,
+  contacto: document.getElementById("contacto").value,
+  empresa: document.getElementById("empresa").value,
+  alcocheck: document.getElementById("alcocheck").value,
+  arl: document.getElementById("arl").value,
+  eps: document.getElementById("eps").value,
+  rh: document.getElementById("rh").value,
+  alergias: document.getElementById("alergias").value,
+  emergencia: document.getElementById("emergencia").value,
+  visita: document.getElementById("visita").value,
+
+  serial: traeLaptop === "si" ? document.getElementById("serial").value : "",
+  laptopIngreso: traeLaptop === "si" ? document.getElementById("laptopIngreso").value : "",
+  laptopSalida: traeLaptop === "si" ? document.getElementById("laptopSalida").value : "",
+
+  aceptaDatos: document.getElementById("aceptaDatos").checked,
+  firma: dataURL
+};
   try {
     const response = await fetch(`${API_BASE}/registro`, {
       method: "POST",
