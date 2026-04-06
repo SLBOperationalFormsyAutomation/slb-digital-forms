@@ -22,31 +22,23 @@ SUPABASE_URL = "https://jfhsgobubmmedsbtenay.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmaHNnb2J1Ym1tZWRzYnRlbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM2NjgsImV4cCI6MjA5MDQ2OTY2OH0.QGs3_rYsX7e4uzUMJhtLkL47-rcdhMtZWWElsLptmrI"  # Clave real
 
 def formatear_fecha(fecha_str):
-    """Convierte fecha ISO a hora Colombia (UTC-5)"""
+    """Convierte fecha ISO (UTC) a hora Colombia (UTC-5)"""
     try:
-        if not fecha_str:
-            return ""
+        if 'T' in fecha_str:
+            # Convertir a datetime en UTC
+            dt_utc = datetime.fromisoformat(fecha_str.replace('Z', '+00:00'))
 
-        # 🔥 Forzar UTC aunque no venga con Z
-        if '.' in fecha_str:
-            fecha_str = fecha_str.split('.')[0]
+            # Convertir a zona horaria Colombia (UTC-5)
+            colombia_tz = timezone(timedelta(hours=-5))
+            dt_col = dt_utc.astimezone(colombia_tz)
 
-        dt_utc = datetime.fromisoformat(fecha_str)
+            return dt_col.strftime('%d/%m/%Y %H:%M:%S')
 
-        # ⚠️ CLAVE: asignar UTC manualmente si no tiene tzinfo
-        if dt_utc.tzinfo is None:
-            dt_utc = dt_utc.replace(tzinfo=timezone.utc)
-
-        # Convertir a Colombia
-        colombia_tz = timezone(timedelta(hours=-5))
-        dt_col = dt_utc.astimezone(colombia_tz)
-
-        return dt_col.strftime('%d/%m/%Y %H:%M:%S')
-
+        return fecha_str
     except Exception as e:
         print("Error formateando fecha:", e)
         return fecha_str
-    
+
 def descargar_reporte(formato):
     try:
         # URL para obtener todos los registros
