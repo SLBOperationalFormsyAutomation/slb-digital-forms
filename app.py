@@ -55,7 +55,7 @@ def home():
 
 @app.route("/status", methods=["GET"])
 def status():
-    return jsonify({"status": "ok", "app": "visitor-registration", "time": datetime.now().isoformat()})
+    return jsonify({"status": "ok", "app": "visitor-registration", "time": datetime.now(timezone.utc).isoformat()})
 
 
 @app.route("/registros", methods=["GET"])
