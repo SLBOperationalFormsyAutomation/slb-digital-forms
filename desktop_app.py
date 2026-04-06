@@ -27,19 +27,23 @@ def formatear_fecha(fecha_str):
         if not fecha_str:
             return ""
 
+        # 🔥 Forzar parseo seguro
         dt = datetime.fromisoformat(str(fecha_str).replace("Z", "+00:00"))
 
+        # 🔥 Asegurar UTC real
         if dt.tzinfo is None:
             dt = dt.replace(tzinfo=timezone.utc)
 
+        # 🇨🇴 Convertir a Colombia
         colombia = timezone(timedelta(hours=-5))
+        dt_col = dt.astimezone(colombia)
 
-        return dt.astimezone(colombia).strftime('%d/%m/%Y %H:%M:%S')
+        return dt_col.strftime('%d/%m/%Y %H:%M:%S')
 
     except Exception as e:
         print("Error fecha:", e, fecha_str)
         return str(fecha_str)
-
+    
 def descargar_reporte(formato):
     try:
         # URL para obtener todos los registros
