@@ -88,19 +88,27 @@ def registro():
 
 
 def formatear_fecha(fecha_str):
-    """Convierte fecha ISO (UTC) a hora Colombia (UTC-5)"""
+    """Convierte fecha ISO a hora Colombia (UTC-5)"""
     try:
-        if 'T' in fecha_str:
-            # Convertir a datetime UTC
-            dt_utc = datetime.fromisoformat(fecha_str.replace('Z', '+00:00'))
+        if not fecha_str:
+            return ""
 
-            # Ajustar a Colombia (UTC-5)
-            colombia_tz = timezone(timedelta(hours=-5))
-            dt_col = dt_utc.astimezone(colombia_tz)
+        # 🔥 Forzar UTC aunque no venga con Z
+        if '.' in fecha_str:
+            fecha_str = fecha_str.split('.')[0]
 
-            return dt_col.strftime('%d/%m/%Y %H:%M:%S')
+        dt_utc = datetime.fromisoformat(fecha_str)
 
-        return fecha_str
+        # ⚠️ CLAVE: asignar UTC manualmente si no tiene tzinfo
+        if dt_utc.tzinfo is None:
+            dt_utc = dt_utc.replace(tzinfo=timezone.utc)
+
+        # Convertir a Colombia
+        colombia_tz = timezone(timedelta(hours=-5))
+        dt_col = dt_utc.astimezone(colombia_tz)
+
+        return dt_col.strftime('%d/%m/%Y %H:%M:%S')
+
     except Exception as e:
         print("Error formateando fecha:", e)
         return fecha_str
