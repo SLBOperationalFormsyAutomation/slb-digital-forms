@@ -3,13 +3,12 @@ from flask_cors import CORS
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image as XLImage
 from openpyxl.styles import PatternFill, Font, Alignment
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import base64
 from io import BytesIO
 import os
 import requests
 from PIL import Image
-from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 CORS(app)
@@ -42,13 +41,12 @@ def guardar_registro(data):
         "laptopIngreso": data.get("laptopIngreso",""),
         "laptopSalida": data.get("laptopSalida",""),
         "aceptaDatos": data["aceptaDatos"],
-        "firma": data["firma"]
+        "firma": data["firma"],
+        "fechaRegistro": datetime.now(timezone.utc).isoformat()
     }
     r = requests.post(url, json=payload, headers=headers)
     r.raise_for_status()
     return r.json()
-
-
 
 @app.route("/", methods=["GET"])
 def home():
