@@ -86,22 +86,22 @@ def registro():
 
 
 def formatear_fecha(fecha_str):
-    """Convierte fecha ISO (UTC) a hora Colombia (UTC-5)"""
     try:
-        if 'T' in fecha_str:
-            # Convertir a datetime UTC
-            dt_utc = datetime.fromisoformat(fecha_str.replace('Z', '+00:00'))
+        if not fecha_str:
+            return ""
 
-            # Ajustar a Colombia (UTC-5)
-            colombia_tz = timezone(timedelta(hours=-5))
-            dt_col = dt_utc.astimezone(colombia_tz)
+        dt = datetime.fromisoformat(str(fecha_str).replace("Z", "+00:00"))
 
-            return dt_col.strftime('%d/%m/%Y %H:%M:%S')
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
 
-        return fecha_str
+        colombia = timezone(timedelta(hours=-5))
+
+        return dt.astimezone(colombia).strftime('%d/%m/%Y %H:%M:%S')
+
     except Exception as e:
-        print("Error formateando fecha:", e)
-        return fecha_str
+        print("Error fecha:", e, fecha_str)
+        return str(fecha_str)
 
 
 @app.route("/export_excel", methods=["GET"])

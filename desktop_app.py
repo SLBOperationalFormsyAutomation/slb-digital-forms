@@ -3,6 +3,7 @@ from tkinter import messagebox, filedialog, ttk
 import requests
 import csv
 import os
+import pytz
 from datetime import datetime, timedelta, timezone
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image as XLImage
@@ -22,22 +23,22 @@ SUPABASE_URL = "https://jfhsgobubmmedsbtenay.supabase.co"
 SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmaHNnb2J1Ym1tZWRzYnRlbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM2NjgsImV4cCI6MjA5MDQ2OTY2OH0.QGs3_rYsX7e4uzUMJhtLkL47-rcdhMtZWWElsLptmrI"  # Clave real
 
 def formatear_fecha(fecha_str):
-    """Convierte fecha ISO (UTC) a hora Colombia (UTC-5)"""
     try:
-        if 'T' in fecha_str:
-            # Convertir a datetime en UTC
-            dt_utc = datetime.fromisoformat(fecha_str.replace('Z', '+00:00'))
+        if not fecha_str:
+            return ""
 
-            # Convertir a zona horaria Colombia (UTC-5)
-            colombia_tz = timezone(timedelta(hours=-5))
-            dt_col = dt_utc.astimezone(colombia_tz)
+        dt = datetime.fromisoformat(str(fecha_str).replace("Z", "+00:00"))
 
-            return dt_col.strftime('%d/%m/%Y %H:%M:%S')
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
 
-        return fecha_str
+        colombia = timezone(timedelta(hours=-5))
+
+        return dt.astimezone(colombia).strftime('%d/%m/%Y %H:%M:%S')
+
     except Exception as e:
-        print("Error formateando fecha:", e)
-        return fecha_str
+        print("Error fecha:", e, fecha_str)
+        return str(fecha_str)
 
 def descargar_reporte(formato):
     try:
