@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Login Admin</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(#001f3d, #002855);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+.box {
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  width:300px;
+  text-align:center;
+}
+
+h2 {
+  color:#002855;
+}
+
+input {
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+button {
+  width:100%;
+  padding:12px;
+  margin-top:15px;
+  background:#002855;
+  color:white;
+  border:none;
+  border-radius:8px;
+}
+
+.back {
+  margin-top:10px;
+  background:#ccc;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+  <h2>🔐 Admin</h2>
+
+  <input id="user" placeholder="Usuario">
+  <input id="pass" type="password" placeholder="Contraseña">
+
+  <button onclick="login()">Ingresar</button>
+  <button class="back" onclick="volver()">Volver</button>
+</div>
+
+<script>
+function login(){
+  if(user.value === "admin" && pass.value === "admin"){
+    localStorage.setItem("auth","ok");
+    window.location.href = "dashboard.html";
+  }else{
+    alert("Credenciales incorrectas");
+  }
+}
+
+function volver(){
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>

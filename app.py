@@ -110,83 +110,119 @@ def formatear_fecha(fecha_str):
 
 @app.route("/export_excel", methods=["GET"])
 def export_excel():
-    # Obtener datos de Supabase
+
     url = f"{SUPABASE_URL}/rest/v1/registros"
     headers = {
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": f"Bearer {SUPABASE_ANON_KEY}"
     }
+
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     registros = response.json()
 
-    # Crear workbook
+    if not registros:
+        return jsonify({"error": "No hay datos"}), 400
+
     wb = Workbook()
     ws = wb.active
     ws.title = "Registros"
 
-    # Headers - Excluir created_at y usar dinámicamente
-    all_keys = list(registros[0].keys()) if registros else []
-    headers = [h for h in all_keys if h != 'created_at']
-    
-    # Estilo de encabezados (Azul SLB)
+    # 🔥 ORDEN FIJO
+    headers = [
+        "ID",
+        "nombre",
+        "tipoDocumento",
+        "documento",
+        "contacto",
+        "empresa",
+        "alcocheck",
+        "arl",
+        "eps",
+        "rh",
+        "alergias",
+        "emergencia",
+        "visita",
+        "serial",
+        "laptopIngreso",
+        "laptopSalida",
+        "aceptaDatos",
+        "firma",
+        "fechaRegistro"
+    ]
+
+    # 🔵 Estilo encabezado
     header_fill = PatternFill(start_color="003366", end_color="003366", fill_type="solid")
-    header_font = Font(bold=True, color="FFFFFF", size=12)
+    header_font = Font(bold=True, color="FFFFFF")
     header_alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    
+
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num, value=header)
         cell.fill = header_fill
         cell.font = header_font
         cell.alignment = header_alignment
-    
-    ws.row_dimensions[1].height = 30
 
-    # Datos
-    for row_num, reg in enumerate(registros, 2):
-        row_height = 20
+    # 🔵 DATA
+    for i, reg in enumerate(registros, start=1):
+        row_num = i + 1
+
         for col_num, key in enumerate(headers, 1):
-            if key == "firma" and reg.get(key):
-                # Insertar imagen de firma
+
+            if key == "ID":
+                ws.cell(row=row_num, column=col_num, value=i)
+
+            elif key == "firma" and reg.get("firma"):
                 try:
-                    firma_base64 = reg[key]
-                    if isinstance(firma_base64, str) and ',' in firma_base64:
+                    firma_base64 = reg["firma"]
+
+                    if ',' in firma_base64:
                         firma_data = base64.b64decode(firma_base64.split(',')[1])
-                    elif isinstance(firma_base64, str):
-                        firma_data = base64.b64decode(firma_base64)
                     else:
-                        raise ValueError("Formato de firma inválido")
+                        firma_data = base64.b64decode(firma_base64)
+
                     img = Image.open(BytesIO(firma_data))
-                    img_resized = img.resize((80, 60))
-                    img_temp = BytesIO()
-                    img_resized.save(img_temp, format='PNG')
-                    img_temp.seek(0)
-                    xl_img = XLImage(img_temp)
+                    img = img.resize((80, 60))
+
+                    img_bytes = BytesIO()
+                    img.save(img_bytes, format="PNG")
+                    img_bytes.seek(0)
+
+                    xl_img = XLImage(img_bytes)
                     ws.add_image(xl_img, f'{chr(64 + col_num)}{row_num}')
-                    row_height = 65
-                except Exception as e:
-                    ws.cell(row=row_num, column=col_num, value="Error en firma")
-            elif key == "fechaRegistro" and reg.get(key):
-                ws.cell(row=row_num, column=col_num, value=formatear_fecha(reg[key]))
+
+                except:
+                    ws.cell(row=row_num, column=col_num, value="Error firma")
+
+            elif key == "fechaRegistro":
+                ws.cell(row=row_num, column=col_num, value=formatear_fecha(reg.get(key)))
+
             else:
                 ws.cell(row=row_num, column=col_num, value=reg.get(key, ""))
-        
-        ws.row_dimensions[row_num].height = row_height
-    
-    # Ajustar ancho de columnas
-    for col_num, key in enumerate(headers, 1):
-        if key == "firma":
-            ws.column_dimensions[chr(64 + col_num)].width = 15
-        else:
-            ws.column_dimensions[chr(64 + col_num)].width = 18
 
-    # Guardar en memoria
+    # 🔥 AUTO WIDTH
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+
+        for cell in col:
+            try:
+                if cell.value:
+                    max_length = max(max_length, len(str(cell.value)))
+            except:
+                pass
+
+        ws.column_dimensions[col_letter].width = max_length + 2
+
     output = BytesIO()
     wb.save(output)
     output.seek(0)
 
-    return send_file(output, as_attachment=True, download_name="registros_visitantes.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
+    return send_file(
+        output,
+        as_attachment=True,
+        download_name="registros_visitantes.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

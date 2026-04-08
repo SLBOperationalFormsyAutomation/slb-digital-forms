@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard</title>
+
+<style>
+body{
+  font-family:Arial;
+  margin:0;
+  background:#f5f5f5;
+}
+
+.header{
+  background:#002855;
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+}
+
+.container{
+  padding:20px;
+}
+
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.excel{
+  background:#28a745;
+  color:white;
+}
+
+.logout{
+  background:red;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+  <div>📊 Dashboard Visitantes</div>
+  <button class="logout" onclick="logout()">Cerrar sesión</button>
+</div>
+
+<div class="container">
+  <button class="excel" onclick="descargarExcel()">Descargar Excel</button>
+</div>
+
+<script>
+const API = "https://slb-digital-forms.onrender.com";
+
+if(localStorage.getItem("auth") !== "ok"){
+  window.location.href = "login.html";
+}
+
+function logout(){
+  localStorage.removeItem("auth");
+  window.location.href = "index.html";
+}
+
+function descargarExcel(){
+  window.open(`${API}/export_excel`, "_blank");
+}
+</script>
+
+</body>
+</html>
