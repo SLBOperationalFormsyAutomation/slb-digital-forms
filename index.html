@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>Registro Visitantes SLB</title>
 <link rel="icon" href="logo.png">
@@ -25,18 +26,33 @@
 }
 
 .logo-loader {
-  width: 120px;
-  margin-bottom: 20px;
+  width: 100px;
+  max-width: 30vw;
+  margin-bottom: 15px;
   animation: zoomIn 1.2s ease;
 }
 
 .titulo-loader {
   color: white;
-  font-size: 26px;
+  font-size: 22px;
   text-align: center;
+  padding: 0 20px;
   animation: slideUp 1s ease;
 }
 
+@media (max-width: 600px) {
+  .logo-loader {
+    width: 80px;
+  }
+
+  .titulo-loader {
+    font-size: 18px;
+  }
+
+  #loader {
+    padding: 20px;
+  }
+}
 /* 🔹 ANIMACIONES */
 @keyframes zoomIn {
   from { transform: scale(0.5); opacity: 0; }
