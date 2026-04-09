@@ -6,6 +6,52 @@
 <link rel="icon" href="logo.png">
 
 <style>
+
+/* 🔹 LOADER PANTALLA INICIAL */
+#loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #001f3d, #007BFF);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeOut 1s ease forwards;
+  animation-delay: 2.5s;
+}
+
+.logo-loader {
+  width: 120px;
+  margin-bottom: 20px;
+  animation: zoomIn 1.2s ease;
+}
+
+.titulo-loader {
+  color: white;
+  font-size: 26px;
+  text-align: center;
+  animation: slideUp 1s ease;
+}
+
+/* 🔹 ANIMACIONES */
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
 :root {
   --slb-blue-dark: #001f3d;
 }
@@ -76,6 +122,11 @@ button {
 
 </head>
 <body>
+<!-- 🔹 LOADER -->
+<div id="loader">
+  <img src="logo.png" class="logo-loader">
+  <h1 class="titulo-loader">Registro de Visitantes</h1>
+</div>
 
 <div style="position:fixed; top:10px; right:10px;">
   <button onclick="window.location.href='login.html'" style="
@@ -333,6 +384,13 @@ const data = {
   } catch (err) {
     alert("Error de conexión con el servidor.");
   }
+});
+
+// 🔹 OCULTAR LOADER DESPUÉS DE CARGAR
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    document.getElementById("loader").style.display = "none";
+  }, 3000);
 });
 </script>
 
