@@ -25,24 +25,24 @@ def guardar_registro(data):
         "Prefer": "return=representation"
     }
     payload = {
-        "nombre": data["nombre"],
-        "tipoDocumento": data["tipoDocumento"],
-        "documento": data["documento"],
-        "contacto": data["contacto"],
-        "empresa": data["empresa"],
-        "alcocheck": data["alcocheck"],
-        "arl": data.get("arl",""),
-        "eps": data.get("eps",""),
-        "rh": data.get("rh",""),
-        "alergias": data.get("alergias",""),
-        "emergencia": data.get("emergencia",""),
-        "visita": data.get("visita",""),
-        "serial": data.get("serial",""),
-        "laptopIngreso": data.get("laptopIngreso",""),
-        "laptopSalida": data.get("laptopSalida",""),
-        "aceptaDatos": data["aceptaDatos"],
-        "firma": data["firma"],
-        "fechaRegistro": datetime.now(timezone.utc).isoformat()
+        "Nombre": data["nombre"],
+        "Tipo de Documento": data["tipoDocumento"],
+        "Documento": data["documento"],
+        "Contacto": data["contacto"],
+        "Empresa": data["empresa"],
+        "Alcocheck": data["alcocheck"],
+        "ARL": data.get("arl",""),
+        "EPS": data.get("eps",""),
+        "RH": data.get("rh",""),
+        "Alergias": data.get("alergias",""),
+        "Contacto de Emergencia": data.get("emergencia",""),
+        "A quien visita": data.get("visita",""),
+        "Serial Laptop": data.get("serial",""),
+        "Hora de ingreso Laptop": data.get("laptopIngreso",""),
+        "Hora de salida Laptop": data.get("laptopSalida",""),
+        "Acepta Tratamiento Datos": data["aceptaDatos"],
+        "Firma": data["firma"],
+        "Fecha de Registro": datetime.now(timezone.utc).isoformat()
     }
     r = requests.post(url, json=payload, headers=headers)
     r.raise_for_status()
