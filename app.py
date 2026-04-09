@@ -25,8 +25,8 @@ def guardar_registro(data):
         "Prefer": "return=representation"
     }
     payload = {
-        "nombre": data["Nombre"],
-        "tipoDocumento": data["Tipo de Documento"],
+        "nombre": data["nombre"],
+        "tipoDocumento": data["tipoDocumento"],
         "documento": data["documento"],
         "contacto": data["contacto"],
         "empresa": data["empresa"],
@@ -128,27 +128,27 @@ def export_excel():
     ws = wb.active
     ws.title = "Registros"
 
-    # 🔥 ORDEN FIJO
+    # ENCABEZADOS EXCEL
     headers = [
         "ID",
-        "nombre",
-        "tipoDocumento",
-        "documento",
-        "contacto",
-        "empresa",
-        "alcocheck",
-        "arl",
-        "eps",
-        "rh",
-        "alergias",
-        "emergencia",
-        "visita",
-        "serial",
-        "laptopIngreso",
-        "laptopSalida",
-        "aceptaDatos",
-        "firma",
-        "fechaRegistro"
+        "Nombre",
+        "Tipo de Documento",
+        "Documento",
+        "Contacto",
+        "Empresa",
+        "Alcocheck",
+        "ARL",
+        "EPS",
+        "RH",
+        "Alergias",
+        "Contacto de Emergencia",
+        "A Quien Visita",
+        "Laptop Serial",
+        "Fecha de Ingreso Laptop",
+        "Fecha de Salida Laptop",
+        "Acepta Tratamiento de Datos",
+        "Firma",
+        "Fecha de Registro"
     ]
 
     # 🔵 Estilo encabezado
