@@ -37,4 +37,4 @@ Aplicación web para el registro digital de visitantes, diseñada para reemplaza
 
 ## 👨‍💻 Autor
 
-Desarrollado por **Juan Camilo Tibaduiza**
+Desarrollado por **Juan Camilo Tibaduiza.**
