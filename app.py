@@ -14,7 +14,7 @@ app = Flask(__name__)
 CORS(app)
 
 SUPABASE_URL = os.getenv("SUPABASE_URL", "https://jfhsgobubmmedsbtenay.supabase.co")
-SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "TU_API_KEY_AQUI")
+SUPABASE_ANON_KEY = os.getenv("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpmaHNnb2J1Ym1tZWRzYnRlbmF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4OTM2NjgsImV4cCI6MjA5MDQ2OTY2OH0.QGs3_rYsX7e4uzUMJhtLkL47-rcdhMtZWWElsLptmrI", "sb_publishable_TrVB3NzbFvwULZfvS6TyiQ_cUQYAmH4")
 
 # 🔹 GUARDAR REGISTRO
 def guardar_registro(data):
