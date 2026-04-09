@@ -22,4 +22,19 @@ Aplicación web para el registro digital de visitantes, diseñada para reemplaza
   - Pillow (imágenes)
   - requests
 
-## 📂 Estructura del proyecto
+## 📊 Funcionalidades del Dashboard
+- Total de registros
+- Descarga de Excel con:
+- Encabezados personalizados
+    - ID automático
+    - Firma como imagen
+    - Fechas en horario Colombia
+
+## 📌 Notas
+- La firma se guarda en formato Base64
+- El Excel incluye formato corporativo (estilo SLB)
+- Compatible con dispositivos móviles
+
+## 👨‍💻 Autor
+
+Desarrollado por **Juan Camilo Tibaduiza**
