@@ -1,151 +1,240 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta charset="UTF-8">
-<title>Registro Visitantes SLB</title>
-<link rel="icon" href="logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Registro Visitantes SLB</title>
+  <link rel="icon" href="logo.png">
 
-<style>
+  <style>
+    /* 🔥 OVERLAY */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 99999;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.3s;
+    }
 
-/* 🔹 LOADER PANTALLA INICIAL */
-#loader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, #001f3d, #007BFF);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  animation: fadeOut 1s ease forwards;
-  animation-delay: 2.5s;
-}
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
 
-.logo-loader {
-  width: 100px;
-  max-width: 30vw;
-  margin-bottom: 15px;
-  animation: zoomIn 1.2s ease;
-}
+    /* 🔥 BOX */
+    .loader-box {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
 
-.titulo-loader {
-  color: white;
-  font-size: 22px;
-  text-align: center;
-  padding: 0 20px;
-  animation: slideUp 1s ease;
-}
+    /* 🔥 TEXTO */
+    #estadoTexto {
+      color: #002855;
+      margin-bottom: 20px;
+    }
 
-@media (max-width: 600px) {
-  .logo-loader {
-    width: 80px;
-  }
+    /* 🔥 BARRA */
+    .progress-bar {
+      width: 100%;
+      height: 12px;
+      background: #ddd;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-  .titulo-loader {
-    font-size: 18px;
-  }
+    #progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #007BFF, #00d4ff);
+      transition: width 0.3s;
+    }
 
-  #loader {
-    padding: 20px;
-  }
-}
-/* 🔹 ANIMACIONES */
-@keyframes zoomIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+    /* 🔥 CHECK */
+    .check {
+      font-size: 50px;
+      color: #28a745;
+      margin-top: 20px;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: 0.3s;
+    }
 
-@keyframes slideUp {
-  from { transform: translateY(40px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
+    .check.show {
+      opacity: 1;
+      transform: scale(1.3);
+    }
 
-@keyframes fadeOut {
-  to { opacity: 0; visibility: hidden; }
-}
+    /* 🔹 LOADER PANTALLA INICIAL */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #001f3d, #007BFF);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      animation: fadeOut 1s ease forwards;
+      animation-delay: 2.5s;
+    }
 
-:root {
-  --slb-blue-dark: #001f3d;
-}
+    .logo-loader {
+      width: 100px;
+      max-width: 30vw;
+      margin-bottom: 15px;
+      animation: zoomIn 1.2s ease;
+    }
 
-body {
-  font-family: Arial, sans-serif;
-  background-image: url('Fondo.png');
-  background-size: cover;
-  background-position: center;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-}
+    .titulo-loader {
+      color: white;
+      font-size: 22px;
+      text-align: center;
+      padding: 0 20px;
+      animation: slideUp 1s ease;
+    }
 
-form {
-  background-color: rgba(255,255,255,0.95);
-  padding: 25px;
-  border-radius: 12px;
-  width: 95%;
-  max-width: 520px;
-  color: #000;
-}
+    @media (max-width: 600px) {
+      .logo-loader {
+        width: 80px;
+      }
 
-h2 {
-  text-align: center;
-  color: var(--slb-blue-dark);
-}
+      .titulo-loader {
+        font-size: 18px;
+      }
 
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-}
+      #loader {
+        padding: 20px;
+      }
+    }
 
-input, select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
+    /* 🔹 ANIMACIONES */
+    @keyframes zoomIn {
+      from {
+        transform: scale(0.5);
+        opacity: 0;
+      }
 
-canvas {
-  border: 1px solid #ccc;
-  background: #fff;
-  width: 100%;
-  height: 100px;
-  border-radius: 6px;
-}
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
 
-button {
-  background-color: var(--slb-blue-dark);
-  color: white;
-  padding: 12px;
-  border: none;
-  width: 100%;
-  margin-top: 15px;
-  border-radius: 8px;
-}
+    @keyframes slideUp {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
 
-.small {
-  font-size: 0.8em;
-  font-weight: normal;
-}
-</style>
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        visibility: hidden;
+      }
+    }
+
+    :root {
+      --slb-blue-dark: #001f3d;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('Fondo.png');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    form {
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 12px;
+      width: 95%;
+      max-width: 520px;
+      color: #000;
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--slb-blue-dark);
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    canvas {
+      border: 1px solid #ccc;
+      background: #fff;
+      width: 100%;
+      height: 100px;
+      border-radius: 6px;
+    }
+
+    button {
+      background-color: var(--slb-blue-dark);
+      color: white;
+      padding: 12px;
+      border: none;
+      width: 100%;
+      margin-top: 15px;
+      border-radius: 8px;
+    }
+
+    .small {
+      font-size: 0.8em;
+      font-weight: normal;
+    }
+  </style>
 
 </head>
-<body>
-<!-- 🔹 LOADER -->
-<div id="loader">
-  <img src="logo.png" class="logo-loader">
-  <h1 class="titulo-loader">Registro de Visitantes</h1>
-</div>
 
-<div style="position:fixed; top:10px; right:10px;">
-  <button onclick="window.location.href='login.html'" style="
+<body>
+  <!-- 🔹 LOADER -->
+  <div id="loader">
+    <img src="logo.png" class="logo-loader">
+    <h1 class="titulo-loader">Registro de Visitantes</h1>
+  </div>
+
+  <div style="position:fixed; top:10px; right:10px;">
+    <button onclick="window.location.href='login.html'" style="
     background:#007BFF;
     border:none;
     border-radius:50%;
@@ -156,259 +245,351 @@ button {
     align-items:center;
     justify-content:center;
   ">
-    👤
-  </button>
-</div>
+      👤
+    </button>
+  </div>
 
-<form id="formRegistro">
-<h2>Registro de Visitantes</h2>
+  <form id="formRegistro">
+    <h2>Registro de Visitantes</h2>
 
-<label>Nombre completo</label>
-<input id="nombre" required>
+    <label>Nombre completo</label>
+    <input id="nombre" required>
 
-<label>Tipo documento</label>
-<select id="tipoDocumento">
-  <option>C.C</option>
-  <option>C.E</option>
-  <option>GIN</option>
-</select>
+    <label>Tipo documento</label>
+    <select id="tipoDocumento">
+      <option>C.C</option>
+      <option>C.E</option>
+      <option>GIN</option>
+    </select>
 
-<label>Documento</label>
-<input id="documento" required>
+    <label>Documento</label>
+    <input id="documento" required>
 
-<label>Contacto</label>
-<input id="contacto" required>
+    <label>Contacto</label>
+    <input id="contacto" required>
 
-<label>Empresa</label>
-<input id="empresa" required>
+    <label>Empresa</label>
+    <input id="empresa" required>
 
-<label>Alcocheck</label>
-<select id="alcocheck">
-  <option>Negativo</option>
-  <option>Positivo</option>
-</select>
+    <label>Alcocheck</label>
+    <select id="alcocheck">
+      <option>Negativo</option>
+      <option>Positivo</option>
+    </select>
 
-<label>ARL</label>
-<input id="arl">
+    <label>ARL</label>
+    <input id="arl">
 
-<label>EPS</label>
-<input id="eps">
+    <label>EPS</label>
+    <input id="eps">
 
-<label>Tipo de sangre (RH)</label>
-<select id="rh">
-  <option value="">Seleccione...</option>
-  <option>A+</option>
-  <option>A-</option>
-  <option>B+</option>
-  <option>B-</option>
-  <option>AB+</option>
-  <option>AB-</option>
-  <option>O+</option>
-  <option>O-</option>
-</select>
+    <label>Tipo de sangre (RH)</label>
+    <select id="rh">
+      <option value="">Seleccione...</option>
+      <option>A+</option>
+      <option>A-</option>
+      <option>B+</option>
+      <option>B-</option>
+      <option>AB+</option>
+      <option>AB-</option>
+      <option>O+</option>
+      <option>O-</option>
+    </select>
 
-<label>Alergias</label>
-<input id="alergias">
+    <label>Alergias</label>
+    <input id="alergias">
 
-<label>Contacto emergencia (Nombre y Teléfono)</label>
-<input id="emergencia">
+    <label>Contacto emergencia (Nombre y Teléfono)</label>
+    <input id="emergencia">
 
-<label>A quién visita</label>
-<input id="visita">
+    <label>A quién visita</label>
+    <input id="visita">
 
-<label>¿Trae portátil?</label>
-<select id="traeLaptop">
-  <option value="">Seleccione...</option>
-  <option value="no">No</option>
-  <option value="si">Sí</option>
-</select>
+    <label>¿Trae portátil?</label>
+    <select id="traeLaptop">
+      <option value="">Seleccione...</option>
+      <option value="no">No</option>
+      <option value="si">Sí</option>
+    </select>
 
-<div id="camposLaptop" style="display:none;">
+    <div id="camposLaptop" style="display:none;">
 
-  <label>Laptop - Serial</label>
-  <input id="serial">
+      <label>Laptop - Serial</label>
+      <input id="serial">
 
-  <label>Laptop - Hora ingreso</label>
-  <input type="time" id="laptopIngreso">
+      <label>Laptop - Hora ingreso</label>
+      <input type="time" id="laptopIngreso">
 
-  <label>Laptop - Hora salida</label>
-  <input type="time" id="laptopSalida">
+      <label>Laptop - Hora salida</label>
+      <input type="time" id="laptopSalida">
 
-</div>
+    </div>
 
-<hr>
+    <hr>
 
-<label>Firma</label>
-<canvas id="firma"></canvas>
-<button type="button" id="limpiar">Limpiar firma</button>
+    <label>Firma</label>
+    <canvas id="firma"></canvas>
+    <button type="button" id="limpiar">Limpiar firma</button>
 
-<label class="small">
-<input type="checkbox" id="aceptaDatos" required>
-De conformidad con lo dispuesto en la Ley 1581 de 2012 y demas normas vigentes sobre proteccion de datos personales, autorizo libre, expresa e inequivocamente a Compagnie D'Operations Petrolieres Schlumberger (COPS) o SLB, para que realice la recoleccion y tratamiento de mis datos personales que aqui suministro de manera veraz y completa, los cuales seran utilizados para fines de seguridad. Asi mismo, declaro que conozco que la recoleccion y tratamiento de mis datos personales se realizara de conformidad con lo indicado en la Politica de Tratamiento de datos Personales que podra ser encontrada en el siguiente codigo QR y que en el caso de ejercicio de queja, rectificacion, actualizacion, consulta, o solicitud de acceso o sustraccion de datos, remitire la solicitud al correo electronico: leyprotecciondatos@slb.com.
-</label>
+    <label class="small">
+      <input type="checkbox" id="aceptaDatos" required>
+      De conformidad con lo dispuesto en la Ley 1581 de 2012 y demas normas vigentes sobre proteccion de datos
+      personales, autorizo libre, expresa e inequivocamente a Compagnie D'Operations Petrolieres Schlumberger (COPS) o
+      SLB, para que realice la recoleccion y tratamiento de mis datos personales que aqui suministro de manera veraz y
+      completa, los cuales seran utilizados para fines de seguridad. Asi mismo, declaro que conozco que la recoleccion y
+      tratamiento de mis datos personales se realizara de conformidad con lo indicado en la Politica de Tratamiento de
+      datos Personales que podra ser encontrada en el siguiente codigo QR y que en el caso de ejercicio de queja,
+      rectificacion, actualizacion, consulta, o solicitud de acceso o sustraccion de datos, remitire la solicitud al
+      correo electronico: leyprotecciondatos@slb.com.
+    </label>
 
-<button type="submit">Registrar</button>
+    <button type="submit" id="btnSubmit">
+      <span id="btnText">Registrar</span>
+      <span id="btnLoader" style="display:none;">⏳ Enviando...</span>
+    </button>
+  </form>
 
-</form>
+  <div id="overlay" class="overlay">
+    <div class="loader-box">
 
-<script>
-const form = document.getElementById("formRegistro");
-const canvas = document.getElementById("firma");
-const ctx = canvas.getContext("2d");
+      <h2 id="estadoTexto">Enviando información...</h2>
 
-let dibujando = false;
+      <div class="progress-bar">
+        <div id="progress"></div>
+      </div>
 
-// Ajustar resolución real del canvas (IMPORTANTE para móviles)
-function ajustarCanvas() {
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-}
-window.addEventListener("load", ajustarCanvas);
-window.addEventListener("resize", ajustarCanvas);
+      <div id="check" class="check">✔</div>
 
-// 🔹 FUNCIONES GENERALES
-function iniciarDibujo(x, y) {
-  dibujando = true;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-}
+    </div>
+  </div>
 
-function dibujarLinea(x, y) {
-  if (!dibujando) return;
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.strokeStyle = "#002855";
-  ctx.lineTo(x, y);
-  ctx.stroke();
-}
+  <audio id="successSound">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=success-1-6297.mp3"
+      type="audio/mpeg">
+  </audio>
 
-function terminarDibujo() {
-  dibujando = false;
-}
+  <script>
+    const form = document.getElementById("formRegistro");
+    const canvas = document.getElementById("firma");
+    const ctx = canvas.getContext("2d");
+    const overlay = document.getElementById("overlay");
+    const progress = document.getElementById("progress");
+    const estadoTexto = document.getElementById("estadoTexto");
+    const check = document.getElementById("check");
 
-// 🔹 MOUSE
-canvas.addEventListener("mousedown", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  iniciarDibujo(e.clientX - rect.left, e.clientY - rect.top);
-});
+    let dibujando = false;
 
-canvas.addEventListener("mousemove", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  dibujarLinea(e.clientX - rect.left, e.clientY - rect.top);
-});
+    function mostrarOverlay() {
+      overlay.classList.add("active");
+      progress.style.width = "0%";
+      check.classList.remove("show");
+    }
 
-canvas.addEventListener("mouseup", terminarDibujo);
-canvas.addEventListener("mouseout", terminarDibujo);
+    function animarProgreso() {
+      let progreso = 0;
 
-// 🔹 TOUCH (CELULARES)
-canvas.addEventListener("touchstart", (e) => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  iniciarDibujo(touch.clientX - rect.left, touch.clientY - rect.top);
-});
+      const intervalo = setInterval(() => {
+        progreso += 2;
+        progress.style.width = progreso + "%";
 
-canvas.addEventListener("touchmove", (e) => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  dibujarLinea(touch.clientX - rect.left, touch.clientY - rect.top);
-});
+        if (progreso >= 90) {
+          clearInterval(intervalo);
+        }
+      }, 120);
+    }
 
-canvas.addEventListener("touchend", terminarDibujo);
+    // Ajustar resolución real del canvas (IMPORTANTE para móviles)
+    function ajustarCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+    window.addEventListener("load", ajustarCanvas);
+    window.addEventListener("resize", ajustarCanvas);
 
-// 🔹 BORRAR FIRMA
-document.getElementById("limpiar").addEventListener("click", () => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.beginPath();
-});
+    // 🔹 FUNCIONES GENERALES
+    function iniciarDibujo(x, y) {
+      dibujando = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
 
-const traeLaptopSelect = document.getElementById("traeLaptop");
-const camposLaptop = document.getElementById("camposLaptop");
+    function dibujarLinea(x, y) {
+      if (!dibujando) return;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#002855";
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
 
-traeLaptopSelect.addEventListener("change", () => {
-  if (traeLaptopSelect.value === "si") {
-    camposLaptop.style.display = "block";
-  } else {
-    camposLaptop.style.display = "none";
+    function terminarDibujo() {
+      dibujando = false;
+    }
 
-    document.getElementById("serial").value = "";
-    document.getElementById("laptopIngreso").value = "";
-    document.getElementById("laptopSalida").value = "";
-  }
-});
-// 🔹 VALIDAR SI FIRMA ESTÁ VACÍA
-function firmaVacia() {
-  const blank = document.createElement("canvas");
-  blank.width = canvas.width;
-  blank.height = canvas.height;
-  return canvas.toDataURL() === blank.toDataURL();
-}
-
-const API_BASE = "https://slb-digital-forms.onrender.com";
-
-// 🔹 SUBMIT
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  if (firmaVacia()) {
-    alert("Debe ingresar una firma");
-    return;
-  }
-
-  const dataURL = canvas.toDataURL();
-
-const traeLaptop = document.getElementById("traeLaptop").value;
-
-const data = {
-  nombre: document.getElementById("nombre").value,
-  tipoDocumento: document.getElementById("tipoDocumento").value,
-  documento: document.getElementById("documento").value,
-  contacto: document.getElementById("contacto").value,
-  empresa: document.getElementById("empresa").value,
-  alcocheck: document.getElementById("alcocheck").value,
-  arl: document.getElementById("arl").value,
-  eps: document.getElementById("eps").value,
-  rh: document.getElementById("rh").value,
-  alergias: document.getElementById("alergias").value,
-  emergencia: document.getElementById("emergencia").value,
-  visita: document.getElementById("visita").value,
-
-  serial: traeLaptop === "si" ? document.getElementById("serial").value : "",
-  laptopIngreso: traeLaptop === "si" ? document.getElementById("laptopIngreso").value : "",
-  laptopSalida: traeLaptop === "si" ? document.getElementById("laptopSalida").value : "",
-
-  aceptaDatos: document.getElementById("aceptaDatos").checked,
-  firma: dataURL
-};
-  try {
-    const response = await fetch(`${API_BASE}/registro`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+    // 🔹 MOUSE
+    canvas.addEventListener("mousedown", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      iniciarDibujo(e.clientX - rect.left, e.clientY - rect.top);
     });
 
-    if (response.ok) {
-      alert("Registro guardado correctamente ✅");
-      form.reset();
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    } else {
-      const resData = await response.json();
-      alert("Error: " + resData.error);
-    }
-  } catch (err) {
-    alert("Error de conexión con el servidor.");
-  }
-});
+    canvas.addEventListener("mousemove", (e) => {
+      const rect = canvas.getBoundingClientRect();
+      dibujarLinea(e.clientX - rect.left, e.clientY - rect.top);
+    });
 
-// 🔹 OCULTAR LOADER DESPUÉS DE CARGAR
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    document.getElementById("loader").style.display = "none";
-  }, 3000);
-});
-</script>
+    canvas.addEventListener("mouseup", terminarDibujo);
+    canvas.addEventListener("mouseout", terminarDibujo);
+
+    // 🔹 TOUCH (CELULARES)
+    canvas.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      iniciarDibujo(touch.clientX - rect.left, touch.clientY - rect.top);
+    }, { passive: false });
+
+    canvas.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      dibujarLinea(touch.clientX - rect.left, touch.clientY - rect.top);
+    }, { passive: false });
+
+    canvas.addEventListener("touchend", terminarDibujo);
+
+    // 🔹 BORRAR FIRMA
+    document.getElementById("limpiar").addEventListener("click", () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+    });
+
+    const traeLaptopSelect = document.getElementById("traeLaptop");
+    const camposLaptop = document.getElementById("camposLaptop");
+
+    traeLaptopSelect.addEventListener("change", () => {
+      if (traeLaptopSelect.value === "si") {
+        camposLaptop.style.display = "block";
+      } else {
+        camposLaptop.style.display = "none";
+
+        document.getElementById("serial").value = "";
+        document.getElementById("laptopIngreso").value = "";
+        document.getElementById("laptopSalida").value = "";
+      }
+    });
+    // 🔹 VALIDAR SI FIRMA ESTÁ VACÍA
+    function firmaVacia() {
+      const blank = document.createElement("canvas");
+      blank.width = canvas.width;
+      blank.height = canvas.height;
+      return canvas.toDataURL() === blank.toDataURL();
+    }
+
+    const API_BASE = "https://slb-digital-forms.onrender.com";
+
+    const btn = document.getElementById("btnSubmit");
+    const btnText = document.getElementById("btnText");
+    const btnLoader = document.getElementById("btnLoader");
+
+    let enviando = false;
+
+    const sound = document.getElementById("successSound");
+    sound.volume = 0.6;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // 🚫 Evitar múltiples clics
+      if (enviando) return;
+
+      if (firmaVacia()) {
+        alert("Debe ingresar una firma");
+        return;
+      }
+
+      enviando = true;
+
+      // 🔒 Bloquear botón
+      btn.disabled = true;
+      btnText.style.display = "none";
+      btnLoader.style.display = "inline";
+
+      mostrarOverlay();
+      animarProgreso();
+
+      const dataURL = canvas.toDataURL();
+      const traeLaptop = document.getElementById("traeLaptop").value;
+
+      const data = {
+        nombre: document.getElementById("nombre").value,
+        tipoDocumento: document.getElementById("tipoDocumento").value,
+        documento: document.getElementById("documento").value,
+        contacto: document.getElementById("contacto").value,
+        empresa: document.getElementById("empresa").value,
+        alcocheck: document.getElementById("alcocheck").value,
+        arl: document.getElementById("arl").value,
+        eps: document.getElementById("eps").value,
+        rh: document.getElementById("rh").value,
+        alergias: document.getElementById("alergias").value,
+        emergencia: document.getElementById("emergencia").value,
+        visita: document.getElementById("visita").value,
+
+        serial: traeLaptop === "si" ? document.getElementById("serial").value : "",
+        laptopIngreso: traeLaptop === "si" ? document.getElementById("laptopIngreso").value : "",
+        laptopSalida: traeLaptop === "si" ? document.getElementById("laptopSalida").value : "",
+
+        aceptaDatos: document.getElementById("aceptaDatos").checked,
+        firma: dataURL
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/registro`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          form.reset();
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          progress.style.width = "100%";
+
+          setTimeout(() => {
+            check.classList.add("show");
+            sound.play().catch(() => {
+              console.log("Autoplay bloqueado por el navegador");
+            });
+
+            setTimeout(() => {
+              overlay.classList.remove("active");
+            }, 1500);
+          }, 300);
+        } else {
+          const resData = await response.json();
+          alert("Error: " + resData.error);
+        }
+
+      } catch (err) {
+        alert("Error de conexión con el servidor.");
+      } finally {
+        // 🔓 Reactivar botón
+        enviando = false;
+        btn.disabled = false;
+        btnText.style.display = "inline";
+        btnLoader.style.display = "none";
+      }
+    });
+
+    // 🔹 OCULTAR LOADER DESPUÉS DE CARGAR
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+      }, 3000);
+    });
+  </script>
 
 </body>
+
 </html>
